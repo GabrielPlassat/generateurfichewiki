@@ -1,5 +1,7 @@
-"""Extraction du texte des documents fournis (PDF, Word, texte)."""
+"""Extraction du texte des documents fournis (PDF, Word .docx et .doc, texte)."""
 import io
+import subprocess
+import tempfile
 
 
 def texte_depuis_fichier(nom, contenu: bytes) -> str:
@@ -16,9 +18,17 @@ def texte_depuis_fichier(nom, contenu: bytes) -> str:
             for row in table.rows:
                 lignes.append(" | ".join(c.text.strip() for c in row.cells))
         return "\n".join(lignes)
+    if ext == "doc":
+        # ancien format Word : lu avec l'outil antiword (installé via packages.txt)
+        with tempfile.NamedTemporaryFile(suffix=".doc") as f:
+            f.write(contenu)
+            f.flush()
+            try:
+                return subprocess.run(["antiword", "-w", "0", f.name], capture_output=True,
+                                      text=True, check=True, timeout=60).stdout
+            except Exception:
+                raise ValueError(f"{nom} : lecture du .doc impossible. "
+                                 "Ouvre-le dans Word et enregistre-le en .docx ou en PDF.")
     if ext in ("txt", "md"):
         return contenu.decode("utf-8", errors="replace")
-    if ext == "doc":
-        raise ValueError(f"{nom} : l'ancien format .doc n'est pas lu. "
-                         "Ouvre-le dans Word et enregistre-le en .docx.")
     raise ValueError(f"{nom} : format non pris en charge.")

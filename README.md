@@ -1,40 +1,35 @@
 # Générateur de fiches pour le wiki XD
 
-Appli Streamlit : on choisit un type de fiche (Projet, puis bientôt Évènement, Acteur, Véhicule),
-on dépose des documents (PDF, Word .docx, texte), et l'IA rédige la fiche en wikitexte
-en respectant le modèle du wiki [wikixd.fabmob.io](https://wikixd.fabmob.io).
+Appli Streamlit : on choisit un type de fiche (pour l'instant **Projet**), on dépose le document
+qui décrit le projet (PDF ou Word), et l'IA rédige la fiche en wikitexte au format du modèle
+`{{Project}}` du wiki [wikixd.fabmob.io](https://wikixd.fabmob.io).
+
+L'appli **ne se connecte pas au wiki** : on relit la fiche, puis on la colle sur le wiki.
 
 ## Ce que fait l'appli
 
-1. **Lit le wiki** au démarrage (mis en cache 1 h) : le code de `Modèle:Project`, le `Formulaire:Projet`,
-   et les listes des pages des catégories `Vehicule` et `Acteur`.
-2. **Lit les documents** déposés (PDF texte, .docx avec ses tableaux, .txt/.md).
-3. **Demande à l'IA** (Albert ou Claude) de remplir les champs « à rédiger », en lui donnant le modèle
-   du wiki et les noms exacts des véhicules et acteurs.
-4. **Post-traite** :
-   - valeurs par défaut (référent, challenge, forum…) imposées, modifiables dans l'interface ;
-   - noms de véhicules et d'acteurs **corrigés selon l'orthographe du wiki**, et les noms inconnus signalés ;
-   - **coordonnées géographiques calculées** par le service public de l'IGN à partir du lieu trouvé par l'IA
-     (l'IA n'invente pas les coordonnées).
-5. **Affiche la fiche** (modifiable), une liste « À vérifier », un bouton de téléchargement et un lien
-   qui ouvre la page sur le wiki pour coller la fiche.
+1. Lit le document (PDF texte, Word .docx avec ses tableaux, ancien Word .doc).
+2. Demande à l'IA (Albert ou Claude) de remplir les champs « à rédiger » du modèle.
+3. Ajoute les valeurs par défaut (référent, challenge, forum…), modifiables dans l'interface.
+4. Calcule les coordonnées géographiques à partir du lieu (service public de l'IGN).
+5. Affiche la fiche (modifiable), une liste « À vérifier », un bouton de téléchargement et un
+   lien qui ouvre la page sur le wiki.
 
 ## Mise en ligne sur Streamlit Cloud
 
-1. Mettre ce dossier dans un dépôt GitHub.
-2. Sur share.streamlit.io : *New app* → choisir le dépôt → fichier principal `app.py`.
-3. *Settings → Secrets* : coller le contenu de `.streamlit/secrets.toml.example` avec ta clé Albert
-   (ou Claude).
+1. Sur share.streamlit.io : *Create app* → dépôt `generateurfichewiki`, branche `main`, fichier `app.py`.
+2. *Advanced settings → Secrets* : coller le contenu de `.streamlit/secrets.toml.example` avec ta clé.
 
-## Ajouter un modèle (Évènement, Acteur, Véhicule)
+## Modifier ou ajouter un modèle
 
-Pas de code à écrire : copier `modeles/projet.yaml` en `modeles/evenement.yaml`, puis changer :
-- `nom_affiche` (ce qui apparaît dans le menu), `modele_wiki` (ex. `Event`), `formulaire_wiki` ;
-- la liste `champs` : pour chacun, `source: ia` (rédigé par l'IA, avec une `consigne`),
-  `source: defaut` (valeur fixe), `source: geo` (lieu → coordonnées), et `liste_wiki: Acteur`
-  si les noms doivent exister dans une catégorie du wiki.
+Tout est dans `modeles/projet.yaml` : la liste des champs dans l'ordre du modèle wiki, et pour chacun :
+- `source: ia` + `consigne` : rédigé par l'IA à partir du document ;
+- `source: defaut` + `valeur` : valeur fixe ;
+- `source: geo` : coordonnées calculées à partir du champ `lieu_depuis` ;
+- `source: vide` : laissé vide.
 
-Le nouveau type apparaît automatiquement dans le menu.
+Pour un nouveau type (Évènement, Acteur, Véhicule) : copier `projet.yaml`, adapter `nom_affiche`,
+`modele_wiki` et les champs. Il apparaît automatiquement dans le menu.
 
 ## Fichiers
 
@@ -42,15 +37,14 @@ Le nouveau type apparaît automatiquement dans le menu.
 |---|---|
 | `app.py` | l'interface Streamlit |
 | `modeles/*.yaml` | un fichier par type de fiche : champs, consignes, valeurs par défaut |
-| `generateur.py` | le moteur : prépare la demande à l'IA et assemble la fiche |
-| `wiki_api.py` | lecture du wiki (modèles, catégories, existence d'une page) |
+| `generateur.py` | prépare la demande à l'IA et assemble la fiche |
 | `extraction.py` | lecture des PDF / Word |
 | `ia.py` | appel à Albert ou Claude |
-| `geo.py` | géocodage (IGN / Base Adresse Nationale) |
+| `geo.py` | coordonnées géographiques (IGN / Base Adresse Nationale) |
+| `packages.txt` | outil `antiword` pour lire les anciens .doc |
 
-## Limites connues
+## Limites
 
 - PDF scannés (images) : pas de texte lisible → l'appli le signale.
-- Ancien format `.doc` : à réenregistrer en `.docx`.
-- La fiche n'est pas publiée automatiquement sur le wiki : on la relit puis on la colle
-  (publication directe possible plus tard avec un compte robot du wiki).
+- Les noms de véhicules et d'acteurs sont repris tels qu'écrits dans le document : vérifier qu'ils
+  correspondent aux noms des pages du wiki.
