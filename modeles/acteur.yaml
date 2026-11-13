@@ -1,0 +1,191 @@
+# =====================================================================
+#  Modèle "Acteur"  ->  {{acteur ...}} pour le wiki XD (wikixd.fabmob.io)
+#  Un Acteur est une structure juridique : association, entreprise, collectivité,
+#  école, laboratoire, etc. Champs, ordre et consignes : doc "Modèle Acteur".
+# =====================================================================
+
+nom_affiche: "Acteur"
+ordre: 3                          # position dans le menu
+modele_wiki: "acteur"             # nom écrit après {{ dans la fiche
+consigne_generale: >
+  Tu rédiges une fiche Acteur pour le wiki de l'eXtrême Défi Mobilité (ADEME) /
+  Fabrique des Mobilités. Un Acteur est une structure juridique (association, entreprise,
+  collectivité, école, laboratoire...), pas une personne. Reste factuel : n'invente rien
+  qui ne soit pas dans le document. Les champs à valeurs multiples sont séparés par des virgules.
+
+# Mêmes règles que modeles/projet.yaml et modeles/evenement.yaml.
+champs:
+  - nom: Main_Picture
+    source: vide
+
+  - nom: Lang
+    source: defaut
+    valeur: "Français"
+
+  - nom: LangLink
+    source: vide
+
+  - nom: shortDescription
+    source: ia
+    consigne: "Résumé de l'Acteur en 2 lignes maximum (environ 200 caractères) : qui il est et ce qu'il fait."
+
+  - nom: description
+    source: ia
+    redaction_separee: true
+    ajouter_liens_source: true  # le lien fourni par l'utilisateur est recopié à la fin
+    consigne: >
+      Rédige la description de l'Acteur en wikitexte MediaWiki
+      (titres de section avec == Titre ==, listes à puces avec *, gras avec '''texte''').
+
+      NE RÉSUME PAS : reprends un maximum d'informations du document : activités, métiers,
+      produits et services, historique, chiffres (effectifs, chiffre d'affaires, nombre de
+      véhicules, clients...), implantations, projets et réalisations, et surtout tout ce
+      qui concerne les véhicules intermédiaires (vélis), les quadricycles, les véhicules de
+      catégorie L, l'eXtrême Défi ou la mobilité durable.
+
+      N'INVENTE RIEN : chaque information doit venir du document. Si une rubrique n'est
+      pas renseignée, ne crée pas la section.
+
+      NE RÉPÈTE PAS en tête de description le type de structure, la ville, la région,
+      le site web et les personnes référentes, qui ont leur propre champ dans la fiche.
+
+      Sections possibles (seulement si le document les renseigne) : Présentation,
+      Activités, Produits et services, Lien avec les véhicules intermédiaires,
+      Réalisations et projets, Chiffres clés.
+
+  - nom: Adherent
+    source: vide
+
+  - nom: Tags
+    source: defaut
+    valeur: ""
+
+  - nom: Theme
+    source: defaut
+    valeur: "Véhicules intermédiaires,eXtrême Défi"
+
+  - nom: email
+    source: vide
+
+  - nom: url
+    source: ia
+    consigne: "Adresse du site web officiel de l'Acteur (une seule), si elle figure dans le document."
+
+  - nom: "date de création"
+    source: ia
+    consigne: "Année de création de la structure (ex. 2019), seulement si elle figure dans le document."
+
+  - nom: "pays d'implantation"
+    source: ia
+    consigne: "Pays où l'Acteur est implanté (ex. France)."
+
+  - nom: "villes d'implantation"
+    source: ia
+    consigne: "Ville où l'Acteur est implanté (siège). Plusieurs villes possibles, séparées par une virgule."
+
+  - nom: region
+    source: ia
+    valeurs_autorisees:
+      - Auvergne-Rhône-Alpes
+      - Bourgogne-Franche-Comté
+      - Bretagne
+      - Centre-Val de Loire
+      - Corse
+      - Grand-Est
+      - Guadeloupe
+      - Guyane
+      - Hauts-de-France
+      - Île-de-France
+      - La Réunion
+      - Martinique
+      - Normandie
+      - Nouvelle-Aquitaine
+      - Occitanie
+      - Pays de la Loire
+      - Provence-Alpes-Côte d'Azur
+    consigne: >
+      Région française où l'Acteur est implanté (celle de sa ville principale), en
+      utilisant EXACTEMENT un terme de la liste des valeurs autorisées. Vide si hors de France.
+
+  - nom: "Coordonnées géo"
+    source: geo
+    lieu_depuis: "villes d'implantation"
+    format: "{lat},{lon}"       # aucun espace ; pour inverser l'ordre : "{lon},{lat}"
+    consigne: >
+      Adresse du siège de l'Acteur, la plus précise possible : numéro et rue, code postal,
+      commune (ex. "12 rue de la Paix, 75002 Paris"). Si seule la ville est connue :
+      "Ville, Département".
+
+  - nom: type
+    source: ia
+    valeurs_autorisees: [Agence, Assocation, Conseil, Collectivité, Entreprise, Entrepreneur,
+                         Fondation, Groupe public, Incubateur, Indépendant, Laboratoire, Ecole,
+                         Pôle, Réseau, Startup, Partenaire, Constructeur véhicule, Equipementier]
+    consigne: >
+      Type(s) de structure, un ou plusieurs, en utilisant EXACTEMENT les termes des valeurs
+      autorisées (ex. "Startup, Constructeur véhicule").
+
+  - nom: members
+    source: vide
+
+  - nom: referent
+    source: ia
+    liste_wiki: Utilisateur
+    correspondance: stricte     # une personne : pas de rapprochement approximatif
+    consigne: >
+      Personnes associées à cet Acteur et citées dans le document (dirigeants, contacts,
+      membres de l'équipe), séparées par des virgules. Pour chacune, le nom de la liste
+      « Utilisateur » du wiki si elle y figure, sinon tel qu'écrit dans le document
+      (l'application ne gardera que celles inscrites sur le wiki).
+
+  - nom: needs2
+    source: vide
+
+  - nom: défi
+    source: defaut
+    valeur: "L'extrême défi ADEME"
+
+  - nom: actionacteur
+    source: vide
+
+  - nom: Richesse
+    source: ia
+    valeurs_autorisees: ["Expérimentation", "Cas d’usages",
+                         "Moyen de prototypage – production – essais et calcul",
+                         "Produit – Service", "Conseil Expertise", "Mentorat",
+                         "Contributeur – Communauté", "Financement", "Incubation"]
+    consigne: >
+      Une ou plusieurs richesses qu'apporte ou pourrait apporter l'Acteur au programme
+      eXtrême Défi, d'après ses activités décrites dans le document, en utilisant
+      EXACTEMENT les termes des valeurs autorisées.
+
+  - nom: othercommon
+    source: vide
+
+  - nom: Partenaire
+    source: vide
+
+  - nom: communauté
+    source: defaut
+    valeur: "Communauté de l'extrême défi"
+
+  - nom: forum
+    source: vide
+
+  - nom: chat
+    source: vide
+
+  - nom: tasks
+    source: vide
+
+  - nom: filessharing
+    source: vide
+
+  - nom: needs3
+    source: vide
+
+  - nom: location
+    source: vide
+
+  - nom: challenge
+    source: vide

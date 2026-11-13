@@ -1,8 +1,8 @@
 # Générateur de fiches pour le wiki XD
 
-Appli Streamlit : on choisit un type de fiche (**Projet** ou **Évènement**), on dépose un document
+Appli Streamlit : on choisit un type de fiche (**Projet**, **Évènement** ou **Acteur**), on dépose un document
 (PDF ou Word) et/ou un lien vers une page web qui le décrit, et l'IA rédige la fiche en wikitexte au format du modèle
-`{{Project}}` ou `{{event}}` du wiki [wikixd.fabmob.io](https://wikixd.fabmob.io).
+`{{Project}}`, `{{event}}` ou `{{acteur}}` du wiki [wikixd.fabmob.io](https://wikixd.fabmob.io).
 
 L'appli **ne se connecte pas au wiki** : on relit la fiche, puis on la colle sur le wiki.
 
@@ -36,7 +36,7 @@ puis déposer les fichiers téléchargés dans le dossier `donnees_wiki/` du dé
 
 ## Modifier ou ajouter un modèle
 
-Tout est dans `modeles/projet.yaml` et `modeles/evenement.yaml` : la liste des champs dans l'ordre du modèle wiki, et pour chacun :
+Tout est dans `modeles/projet.yaml`, `modeles/evenement.yaml` et `modeles/acteur.yaml` : la liste des champs dans l'ordre du modèle wiki, et pour chacun :
 - `source: ia` + `consigne` : rédigé par l'IA à partir du document ;
 - `source: defaut` + `valeur` : valeur fixe ;
 - `source: geo` : coordonnées calculées à partir du champ `lieu_depuis` ;

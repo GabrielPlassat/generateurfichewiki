@@ -63,7 +63,7 @@ for cat, prov in provenances.items():
                    f"Lance le notebook rafraichir_listes_wiki.ipynb.", icon="⚠️")
 
 titre = st.text_input("Titre de la page wiki à créer",
-                      help="Le nom du projet ou de l'évènement, tel qu'il apparaîtra sur le wiki. Pas d'apostrophe.")
+                      help="Le nom du projet, de l'évènement ou de l'acteur, tel qu'il apparaîtra sur le wiki. Pas d'apostrophe.")
 st.caption("⚠️ N'utilise pas d'apostrophe dans le titre (ni ' ni ’).")
 erreur_titre = probleme_titre(titre) if titre else ""
 if erreur_titre:
@@ -78,7 +78,7 @@ with st.expander("Valeurs par défaut (modifiables)"):
 st.markdown("**Source** : un document, un lien, ou les deux")
 fichiers = st.file_uploader("Document (PDF ou Word)",
                             type=["pdf", "docx", "doc", "txt", "md"], accept_multiple_files=True)
-lien = st.text_input("Lien vers une page web qui décrit le projet ou l'évènement",
+lien = st.text_input("Lien vers une page web qui le décrit (site, article, programme…)",
                      placeholder="https://…")
 
 pret = (bool(fichiers) or bool(lien.strip())) and bool(titre) and not erreur_titre
