@@ -18,7 +18,8 @@ consigne_generale: >
 # source: "defaut"  -> valeur fixe (modifiable dans l'interface)
 # source: "geo"     -> coordonnées calculées par l'appli à partir du champ indiqué dans lieu_depuis
 # source: "vide"    -> toujours laissé vide (à remplir à la main sur le wiki)
-# liste_wiki: ...   -> seuls les noms de cette catégorie du wiki sont acceptés
+# liste_wiki: ...   -> le nom le plus proche dans cette liste du wiki est retenu
+#                      (correspondance: stricte -> seulement un nom quasi identique)
 #                      (liste dans donnees_wiki/Categorie_<nom>.txt)
 champs:
   - nom: Lang
@@ -56,10 +57,10 @@ champs:
       Enseignements.
     entoure_par: ["<div><div>\n", "\n</div></div>"]
 
-  - nom: "coordonnées géo"
+  - nom: "Coordonnées géo"
     source: geo
     lieu_depuis: location
-    format: "{lat}, {lon}"
+    format: "{lat},{lon}"       # aucun espace ; pour inverser l'ordre : "{lon},{lat}"
 
   - nom: location
     source: ia
@@ -73,9 +74,9 @@ champs:
 
   - nom: Tags
     source: defaut
-    valeur: "#deploiement2026"
+    valeur: "deploiement2026"
 
-  - nom: theme
+  - nom: Theme
     source: defaut
     valeur: "Véhicules intermédiaires, eXtrême Défi"
 
@@ -83,27 +84,32 @@ champs:
     source: ia
     liste_wiki: "Acteur"
     consigne: >
-      Acteurs porteurs ou partenaires du projet (collectivité, entreprise, association...).
-      UNIQUEMENT des noms copiés à l'identique depuis la liste « Acteur » du wiki.
+      Acteurs porteurs ou partenaires du projet (structures juridiques : collectivité,
+      entreprise, association...). Pour chacun, prends dans la liste « Acteur » du wiki
+      le nom le plus proche de celui du document, copié à l'identique.
 
   - nom: to
     source: ia
     liste_wiki: "Acteur"
     consigne: >
       Structures bénéficiaires ou destinataires du projet (ex. collectivité qui accueille
-      l'expérimentation), si distinctes des porteurs. UNIQUEMENT des noms copiés à
-      l'identique depuis la liste « Acteur » du wiki.
+      l'expérimentation), si distinctes des porteurs. Pour chacune, prends dans la liste
+      « Acteur » du wiki le nom le plus proche, copié à l'identique.
 
   - nom: vehicule_equipe
     source: ia
     liste_wiki: "Vehicule"
     consigne: >
-      Véhicules mentionnés dans le document. UNIQUEMENT des noms copiés à l'identique
-      depuis la liste « Vehicule » du wiki.
+      Véhicules mentionnés dans le document. Pour chacun, prends dans la liste
+      « Vehicule » du wiki le nom le plus proche de celui du document, copié à l'identique.
 
   - nom: contributeurs
     source: ia
-    consigne: "Personnes nommées comme contributrices du projet dans le document (Prénom Nom)."
+    liste_wiki: "Utilisateur"
+    correspondance: stricte     # une personne : pas de rapprochement approximatif
+    consigne: >
+      Personnes nommées dans le document comme contributrices du projet, seulement si
+      elles figurent dans la liste « Utilisateur » du wiki (nom copié à l'identique).
 
   - nom: referent
     source: defaut

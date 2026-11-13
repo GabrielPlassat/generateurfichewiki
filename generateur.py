@@ -60,26 +60,52 @@ def noms_probables(noms_wiki, texte_docs):
     return garde
 
 
-def filtrer_noms(valeur, noms_wiki):
-    """Ne garde que les noms qui existent dans la liste du wiki, avec leur orthographe exacte.
-    Renvoie (valeur filtrée, remarques)."""
+def score_proximite(a, b):
+    """Proximité entre deux noms normalisés, de 0 à 1."""
+    if a == b:
+        return 1.0
+    ma, mb = a.split(), b.split()
+    if sorted(ma) == sorted(mb):                        # mêmes mots, ordre différent
+        return 0.98
+    court, long_ = sorted((a, b), key=len)
+    if f" {court} " in f" {long_} ":                    # « cargolab » dans « vehicule cargolab »
+        return 0.8 + 0.2 * len(court) / len(long_)
+    communs = set(ma) & set(mb)
+    mots = 2 * len(communs) / (len(ma) + len(mb))
+    return max(difflib.SequenceMatcher(None, a, b).ratio(), 0.9 * mots)
+
+
+def nom_le_plus_proche(brut, noms_wiki, seuil):
+    """Renvoie (nom du wiki, score) le plus proche, ou (None, meilleur score)."""
+    n = normaliser(brut)
+    meilleur, score_max = None, 0.0
+    for nom in noms_wiki:
+        s = score_proximite(n, normaliser(nom))
+        if s > score_max:
+            meilleur, score_max = nom, s
+    return (meilleur, score_max) if score_max >= seuil else (None, score_max)
+
+
+SEUILS = {"proche": 0.6, "stricte": 0.9}
+
+
+def filtrer_noms(valeur, noms_wiki, correspondance="proche"):
+    """Remplace chaque nom par le nom le plus proche de la liste du wiki.
+    Renvoie (valeur corrigée, remarques)."""
     if not valeur:
         return "", []
     if not noms_wiki:
         return valeur, [f"Liste du wiki indisponible : « {valeur} » non vérifié"]
-    index = {normaliser(n): n for n in noms_wiki}
     gardes, remarques = [], []
     for brut in [v.strip() for v in valeur.split(",") if v.strip()]:
-        n = normaliser(brut)
-        if n in index:
-            gardes.append(index[n])
+        nom, score = nom_le_plus_proche(brut, noms_wiki, SEUILS.get(correspondance, 0.6))
+        if nom is None:
+            remarques.append(f"« {brut} » écarté : aucun nom proche sur le wiki (créer sa page ?)")
             continue
-        proche = difflib.get_close_matches(n, list(index), n=1, cutoff=0.85)
-        if proche:
-            gardes.append(index[proche[0]])
-            remarques.append(f"« {brut} » → « {index[proche[0]]} »")
-        else:
-            remarques.append(f"« {brut} » écarté : absent du wiki (créer sa page, puis l'ajouter à la main)")
+        gardes.append(nom)
+        if nom != brut:
+            fiabilite = "" if score >= 0.85 else " — à vérifier"
+            remarques.append(f"« {brut} » → « {nom} »{fiabilite}")
     return ", ".join(dict.fromkeys(gardes)), remarques
 
 
@@ -97,7 +123,7 @@ def _blocs_contexte(conf, titre, texte_docs, listes, avec_listes=True):
             noms = noms_probables(listes.get(cat, []), texte_docs)
             champs = ", ".join(c["nom"] for c in conf["champs"] if c.get("liste_wiki") == cat)
             if noms:
-                blocs.append(f"### Liste « {cat} » du wiki — seuls noms autorisés pour : {champs}\n"
+                blocs.append(f"### Liste « {cat} » du wiki — choisir le nom le plus proche pour : {champs}\n"
                              + "\n".join(noms))
     blocs.append("### Document source\n" + texte_docs[:MAX_CARACTERES_DOCS])
     return "\n\n".join(blocs)
@@ -110,8 +136,9 @@ def prompts_champs(conf, titre, texte_docs, listes):
         "Tu réponds UNIQUEMENT avec un objet JSON valide, sans texte autour.\n"
         "Tu écris en français. Si une information est absente du document, "
         "laisse le champ vide (\"\") : n'invente jamais.\n"
-        "Pour les champs liés à une liste du wiki, tu n'utilises QUE des noms copiés "
-        "à l'identique depuis cette liste (même orthographe, mêmes majuscules, mêmes accents)."
+        "Pour les champs liés à une liste du wiki : pour chaque véhicule, acteur ou personne "
+        "cité dans le document, choisis dans la liste le nom le plus proche et recopie-le à "
+        "l'identique (même orthographe, mêmes majuscules, mêmes accents)."
     )
     a_remplir = {c["nom"]: " ".join(c["consigne"].split())
                  for c in conf["champs"] if c["source"] == "ia" and not c.get("redaction_separee")}
@@ -177,7 +204,8 @@ def assembler(conf, titre, donnees, listes, valeurs_defaut):
             val = str(donnees.get(nom, "") or "").strip()
             val = val.replace("|", "{{!}}")     # un « | » couperait le champ dans le modèle
             if c.get("liste_wiki"):
-                val, rq = filtrer_noms(val, listes.get(c["liste_wiki"], []))
+                val, rq = filtrer_noms(val, listes.get(c["liste_wiki"], []),
+                                       c.get("correspondance", "proche"))
                 remarques += [f"{nom} : {r}" for r in rq]
 
         # texte de l'IA commençant par une liste ou un titre : doit commencer en début de ligne

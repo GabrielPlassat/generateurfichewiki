@@ -29,7 +29,9 @@ ENTETES = {
 PAGES_TABLEAU = {
     "Vehicule": "Tous_les_vélis",
     "Acteur": "Tous_les_Acteurs",
+    "Utilisateur": "Tous_les_Utilisateurs",
 }
+ESPACES_UTILISATEUR = ("Utilisateur:", "Utilisatrice:", "User:")
 
 
 # ---------------------------------------------------------------- lecture en direct
@@ -48,7 +50,11 @@ class _PremiereColonne(HTMLParser):
             self.cellule += 1
         elif tag == "a" and self.dans_ligne and self.cellule == 1 and not self.pris:
             titre = a.get("title", "")
-            if titre and ":" not in titre.split(" ")[0] and "(page inexistante)" not in titre:
+            if titre.startswith(ESPACES_UTILISATEUR):      # page d'utilisateur (même non créée)
+                titre = titre.split(":", 1)[1].replace(" (page inexistante)", "").strip()
+            elif ":" in titre.split(" ")[0] or "(page inexistante)" in titre:
+                titre = ""                                 # autre espace de noms, ou lien rouge
+            if titre:
                 self.titres.append(titre)
                 self.pris = True
 
