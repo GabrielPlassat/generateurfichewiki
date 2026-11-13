@@ -1,13 +1,15 @@
 """Listes des pages d'une catégorie du wiki XD (véhicules, acteurs…).
 
 Ordre de priorité :
-  1. lecture en direct sur le wiki (API, puis page HTML de la catégorie) ;
+  1. lecture en direct sur le wiki : export Semantic MediaWiki, page-tableau
+     (ex. « Tous les vélis »), API, page de la catégorie ;
   2. sinon, le fichier donnees_wiki/Categorie_<nom>.txt du dépôt GitHub
      (mis à jour avec le notebook rafraichir_listes_wiki.ipynb).
 """
 import html
 import re
 from datetime import date
+from html.parser import HTMLParser
 from pathlib import Path
 
 import requests
@@ -22,7 +24,57 @@ ENTETES = {
 }
 
 
+# Pages du wiki qui affichent un tableau de toutes les pages d'une catégorie
+# (1re colonne = nom de la page). Lisibles même quand l'API est bloquée.
+PAGES_TABLEAU = {
+    "Vehicule": "Tous_les_vélis",
+}
+
+
 # ---------------------------------------------------------------- lecture en direct
+class _PremiereColonne(HTMLParser):
+    """Récupère le titre du 1er lien de la 1re cellule de chaque ligne de tableau."""
+
+    def __init__(self):
+        super().__init__()
+        self.titres, self.dans_ligne, self.cellule, self.pris = [], False, 0, False
+
+    def handle_starttag(self, tag, attrs):
+        a = dict(attrs)
+        if tag == "tr":
+            self.dans_ligne, self.cellule, self.pris = True, 0, False
+        elif tag == "td" and self.dans_ligne:
+            self.cellule += 1
+        elif tag == "a" and self.dans_ligne and self.cellule == 1 and not self.pris:
+            titre = a.get("title", "")
+            if titre and ":" not in titre.split(" ")[0] and "(page inexistante)" not in titre:
+                self.titres.append(titre)
+                self.pris = True
+
+    def handle_endtag(self, tag):
+        if tag == "tr":
+            self.dans_ligne = False
+
+
+def _par_page_tableau(categorie):
+    page = PAGES_TABLEAU.get(categorie)
+    if not page:
+        return []
+    r = requests.get(f"{WIKI}/wiki/{page}", headers=ENTETES, timeout=30)
+    r.raise_for_status()
+    p = _PremiereColonne()
+    p.feed(r.text)
+    return p.titres
+
+
+def _par_export_smw(categorie):
+    """Export JSON de Semantic MediaWiki (Spécial:Ask)."""
+    url = f"{WIKI}/wiki/Spécial:Ask/-5B-5BCatégorie:{categorie}-5D-5D/format%3Djson/limit%3D5000"
+    r = requests.get(url, headers=ENTETES, timeout=30)
+    r.raise_for_status()
+    return list(r.json().get("results", {}).keys())
+
+
 def _par_api(categorie):
     titres, cont = [], {}
     while True:
@@ -57,7 +109,7 @@ def _par_page_html(categorie):
 
 
 def lire_en_direct(categorie):
-    for methode in (_par_api, _par_page_html):
+    for methode in (_par_export_smw, _par_page_tableau, _par_api, _par_page_html):
         try:
             titres = methode(categorie)
             if titres:

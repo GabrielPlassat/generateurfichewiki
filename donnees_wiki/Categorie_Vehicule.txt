@@ -1,2 +1,292 @@
-# Pages de Catégorie:Vehicule sur https://wikixd.fabmob.io
-# mis à jour : jamais — lancer rafraichir_listes_wiki.ipynb
+# Pages de véhicules du wiki XD (copie de secours)
+# source : https://wikixd.fabmob.io/wiki/Tous_les_vélis
+# mis à jour : 2026-11-13
+# 288 noms, un par ligne — l'appli lit la page en direct quand elle le peut
+2-wheel Personal Rapid Transit
+342
+3E Cargo
+428 /557 /630
+5kro100km3pass
+AEV
+ALPS
+Acticycle
+Acticycle ACT2.1
+Agilo
+Alounga
+Aptera
+Aspero
+Autocyclette Pick-up (court)
+Autocyclette Remorque
+Autocyclette Taxi
+Avatar
+B-VAN
+BCT
+BSR FreeRide
+Baker-Prax
+BeGorett
+Bee
+Begorett
+Benur
+Bicar
+Big Tetu
+Bio Hybrid
+Biporteur Unikle
+Biporteur des Cycles du Midi
+Biro
+Blanc Tailleur x Maillon
+Bob
+Bugg E
+C5
+CIRCLE City
+CVO-T01
+CYGUS
+Cab Bike Hawk
+Cabriovelo
+Camel
+CamiGO
+Canta
+Capitaine cargo
+Carcle Bike
+Cargo Low Tech Caminade
+Cargomobile
+Cargoxhytan
+Carver
+Charrette
+Citkar
+Citroën AMI
+CityQ
+Cityq
+Clipper Food
+Cobrane X
+Cotacc
+Coupé Twoseater
+Coyote
+Cyclospace
+DB1
+DUAL by AEMOTION
+Drakkar
+Drye Cycle
+Dual
+Duo Moke
+DuoQuest
+E GO
+E-GOCAR
+E-GokART
+E-ROE Flash
+E-Spider
+E-nvy One
+EAV
+EDI Vehicle
+EQHawk
+EV Mobility
+EVA
+EVIG
+Ecargobike Mubea
+Ecos
+Electrom
+Eli Zero
+Eucl Hyd2
+Evovelo
+Feel Bike
+Fiil F4 e-motion
+Foras
+Freegone
+Frikar
+Fun Utility Vehicle FUV
+Fun2Go duo bike
+Future mobility concept
+GEKO
+GREAT CAR
+Golo Bike
+Grozalye
+HALF
+HVR (High Voltage Race)
+Handirover
+Happyride
+Helixx The Drive
+Hopper
+Horus
+Hyfit
+Hypercycle
+I-road
+INGA
+Ikarhus
+Infinite Lokka
+Infinite Oslo
+Inflatable Skateboard
+Iris e trike
+Jellybean 3D
+Jokari
+Jumug
+KIWEE Mobility
+Karbikes
+Karbikes Pro
+Kate K1
+Ketch Cleen Electrique
+Kinner
+L'Adéquate
+L'Affranchie
+LE FLORHYAN
+LMX SUV
+LOKKA
+La Bagnole
+La Barquette
+La Base
+La Conviviale
+La Plato
+La Valonneuse
+La2roues
+Le Bysi
+Le Formidable
+Le Triporteur Florian'Bikes
+Libellule des sables
+Lightfoot solar
+Low-Cost velomobile
+Lucian
+Luvly 0
+MOB 4.0 by EV4 FRANCE
+MODULEO
+Maillon Cargo 45
+Maillon Daily
+Messerschmitt
+Microlino 2.0
+MoskitOS
+Motofocker Velocar
+Moviness One
+NOVACYCLE
+Navette autonome
+Nimbus
+Northern Light
+OVUM
+Ono
+Ouicycle
+OwnDrive
+Oxpecker
+PIU
+Pedalist
+PedaloCab
+Pedilio
+PelicanTrain
+Phoenix PIC
+Plateforme Karbikes
+Plateforme Powertrain
+Pod
+Podride
+Pony 4
+Prelude.one
+Proxima
+Ptite Zalye
+QBX Sorean
+Qlio velo
+Quad Velo
+Quadryfox
+Quike
+ROZA
+Remorque K-Ryole Dock&Go
+Remorque K-Ryole V6 Kustom
+Remorque KOSTO
+RoseLab Mobile
+S-mouv
+SLAPPY
+SOLAR COMMUTER
+SUL City
+SUL Country
+SUV4XDA
+Scaramobile
+Scoobic Mouse
+Scorpio
+Screecher IV
+Segmobyl
+Shifti
+Silence SO4
+Soletta
+Solo
+Soraya
+Squad
+Srymer business
+Stint Urban Mobility
+Supercycle (véhicule)
+SurbX
+T.ZER
+TAVEOS
+TRIVIAK
+Tectus
+The PEBL
+The Tuga
+Tiny
+Toot
+Treebike
+Tricargo by Bluemooov
+Tricycar
+Tricycle
+Tricyle-dix-sur-dix
+Trident
+Triggo
+Trike Couché IHPVA
+Trimobile
+Trimtab 3x3
+Tripalette
+Tripendo
+Triporteur protégé - XD Cornouaille
+Tuuli
+Twike 3
+Twike 5
+Twoseater
+U1
+UPT
+UTILUS
+Ultra Light Platform
+Urbaner
+Urbaner BOXOO
+VEEMO
+VELHYBSOL
+VEP Voiture à Energie Positive
+VITAL
+VLOTEK Model S-low
+VOK BIKES
+VT1
+Vehicule GREEN&BIKE
+Vehicule HPULHV (Human powered Ultra light hybrid vehicle)
+Velayo
+Velbou
+VeliSX
+VeliSud
+Velobus
+Versatile Cargotandem
+Vheliotech
+VhéliOriginal
+Vhéliotech
+Vike
+Vowag
+Véhicule 000
+Véhicule BIKLOOW
+Véhicule BOARD
+Véhicule Bimboum
+Véhicule CARGOLAB
+Véhicule CEB
+Véhicule CYCLAUTO
+Véhicule Carreto 2x2
+Véhicule Carreto 4x4
+Véhicule EFIK Maxi
+Véhicule EFIK Mini
+Véhicule Laine des Pyrénées
+Véhicule Midipile
+Véhicule PROXITY
+Véhicule Silex
+Véhicule TroisRoy
+Véhicule VeMoo
+Véhicule Waylibus
+Véli&Co
+Vélo-bus
+Waylipro
+Weez
+Wello Family
+Wood-e
+Woodpecker vehicle
+Woodybus
+X-BIKIUM
+XYTE ONE
+Yakbike
+Yokler
+Zbee
+ZippyRider
