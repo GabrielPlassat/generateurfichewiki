@@ -38,7 +38,7 @@ def _par_commune(commune, precision):
                                                  c.get("codeDepartement", "").lower())]
         resultats = filtres or resultats
     exacts = [c for c in resultats if _norm(c["nom"]) == _norm(commune)]
-    c = (exacts or resultats or [None])[0]
+    c = (exacts or [None])[0]          # jamais une commune « ressemblante » : sinon point faux
     if not c:
         return None
     lon, lat = c["centre"]["coordinates"]
@@ -60,11 +60,13 @@ def geocoder(lieu):
     if not lieu or not lieu.strip():
         return None, None, None, "aucun lieu indiqué"
     commune, precision = _decouper(lieu)
-    essais = [
-        ("geo.api.gouv.fr", lambda: _par_commune(commune, precision)),
+    par_commune = ("geo.api.gouv.fr", lambda: _par_commune(commune, precision))
+    par_adresse = [
         ("IGN", lambda: _par_adresse("https://data.geopf.fr/geocodage/search", lieu)),
         ("api-adresse", lambda: _par_adresse("https://api-adresse.data.gouv.fr/search/", lieu)),
     ]
+    # une vraie adresse (numéro, code postal) : on cherche d'abord l'adresse exacte
+    essais = par_adresse + [par_commune] if re.search(r"\d", lieu) else [par_commune] + par_adresse
     erreurs = []
     for nom, essai in essais:
         try:

@@ -256,7 +256,7 @@ def prompts_filtre(conf, texte_docs):
 
 
 # ---------------------------------------------------------------- génération
-def generer_fiche(conf, titre, texte_docs, listes, valeurs_defaut, fournisseur, cle, modele_ia):
+def generer_fiche(conf, titre, texte_docs, listes, valeurs_defaut, fournisseur, cle, modele_ia, liens=()):
     extrait, remarque_filtre = None, ""
     if conf.get("filtre_sujet"):
         systeme, utilisateur = prompts_filtre(conf, texte_docs)
@@ -273,7 +273,7 @@ def generer_fiche(conf, titre, texte_docs, listes, valeurs_defaut, fournisseur, 
         if c.get("redaction_separee"):
             systeme, utilisateur = prompts_texte_long(conf, c, titre, texte_docs)
             donnees[c["nom"]] = nettoyer_texte(appeler_ia(systeme, utilisateur, fournisseur, cle, modele_ia))
-    res = assembler(conf, titre, donnees, listes, valeurs_defaut)
+    res = assembler(conf, titre, donnees, listes, valeurs_defaut, liens)
     res["extrait"] = extrait
     if remarque_filtre:
         res["remarques"].insert(0, remarque_filtre)
@@ -294,7 +294,7 @@ def remplacer_champ(wikitexte, nom, valeur):
     return re.sub(rf"^\|{re.escape(nom)}=.*$", lambda m: f"|{nom}={valeur}", wikitexte, count=1, flags=re.M)
 
 
-def assembler(conf, titre, donnees, listes, valeurs_defaut):
+def assembler(conf, titre, donnees, listes, valeurs_defaut, liens=()):
     """Fusionne réponses de l'IA + valeurs par défaut + coordonnées -> wikitexte."""
     remarques, lieu = [], ""
     lignes = [f"{{{{{conf['modele_wiki']}"]
@@ -305,8 +305,14 @@ def assembler(conf, titre, donnees, listes, valeurs_defaut):
         elif source == "defaut":
             val = valeurs_defaut.get(nom, c.get("valeur", ""))
         elif source == "geo":
-            lieu = str(donnees.get(CLE_LIEU_GEO) or donnees.get(c.get("lieu_depuis", "location"), "") or "").strip()
-            val, rq = coordonnees(c, lieu)
+            # on essaie l'adresse précise demandée à l'IA, puis le champ lieu de la fiche
+            candidats = [str(donnees.get(k) or "").strip()
+                         for k in (CLE_LIEU_GEO, c.get("lieu_depuis", "location"))]
+            candidats = [x for x in dict.fromkeys(candidats) if x] or [""]
+            for lieu in candidats:
+                val, rq = coordonnees(c, lieu)
+                if val:
+                    break
             remarques.append(rq)
         else:
             val = str(donnees.get(nom, "") or "").strip()
@@ -324,6 +330,9 @@ def assembler(conf, titre, donnees, listes, valeurs_defaut):
                 val, rq = normaliser_date(val)
                 if rq:
                     remarques.append(f"{nom} : {rq}")
+
+        if c.get("ajouter_liens_source") and liens:
+            val = (val + "\n\n" if val else "") + "\n".join(f"Source : {u}" for u in liens)
 
         # texte de l'IA commençant par une liste ou un titre : doit commencer en début de ligne
         if source == "ia" and val.startswith(("*", "#", "=", "{|")):

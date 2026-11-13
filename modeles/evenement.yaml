@@ -48,6 +48,7 @@ champs:
   - nom: description
     source: ia
     redaction_separee: true
+    ajouter_liens_source: true  # le lien fourni par l'utilisateur est recopié à la fin
     consigne: >
       Rédige une description précise de l'évènement en wikitexte MediaWiki
       (titres de section avec == Titre ==, listes à puces avec *, gras avec '''texte''').
@@ -84,8 +85,9 @@ champs:
     lieu_depuis: Location
     format: "{lat},{lon}"       # aucun espace ; pour inverser l'ordre : "{lon},{lat}"
     consigne: >
-      Adresse de l'évènement la plus précise possible pour calculer les coordonnées :
-      numéro et rue, code postal, commune (ex. "12 rue de la Paix, 75002 Paris").
+      Adresse du lieu OÙ SE DÉROULE l'évènement (le même lieu que Location), la plus précise
+      possible : numéro et rue, code postal, commune (ex. "30 avenue Corentin-Cariou,
+      75019 Paris"). Jamais l'adresse de l'organisateur, d'une école ou d'un intervenant.
       Si seule la commune est connue : "Commune, Département".
 
   - nom: communauté

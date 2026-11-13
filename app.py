@@ -102,12 +102,14 @@ if st.button("Générer la fiche", type="primary", disabled=not pret):
         st.stop()
     with st.spinner("L'IA rédige la fiche…"):
         try:
-            res = generer_fiche(conf, titre.strip(), texte_docs, listes,
-                                defauts, fournisseur, cle, modele_ia)
+            res = generer_fiche(conf, titre.strip(), texte_docs, listes, defauts,
+                                fournisseur, cle, modele_ia, liens=[lien.strip()] if lien.strip() else [])
+            res["modele"] = choix
             st.session_state["resultat"] = res
             st.session_state["wikitexte"] = res["wikitexte"]
             st.session_state["lieu"] = res["lieu"]
         except Exception as e:
+            st.session_state.pop("resultat", None)     # ne pas laisser affichée une ancienne fiche
             st.error(f"Échec de la génération : {e}")
 
 # ------------------------------------------------------------ résultat
@@ -124,6 +126,8 @@ def recalculer_coordonnees():
 
 
 res = st.session_state.get("resultat")
+if res and res.get("modele") != choix:      # fiche d'un autre type : on ne l'affiche pas
+    res = None
 if res:
     st.divider()
     col1, col2 = st.columns([2, 1])
