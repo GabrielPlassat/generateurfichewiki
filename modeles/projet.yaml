@@ -1,0 +1,151 @@
+# =====================================================================
+#  Modèle "Projet"  ->  {{Project ...}} sur wikixd.fabmob.io
+#  Champs et ordre repris du modèle général (doc "Modèle Project"),
+#  valeurs par défaut reprises du doc "modèle Projet pour Claude".
+#  Pour ajouter un autre modèle : copier ce fichier et adapter.
+# =====================================================================
+
+nom_affiche: "Projet"
+modele_wiki: "Project"            # Modèle:Project
+formulaire_wiki: "Projet"         # (optionnel) Formulaire:Projet, lu pour mieux comprendre les champs
+consigne_generale: >
+  Tu rédiges une fiche Projet pour le wiki de l'eXtrême Défi Mobilité (ADEME) /
+  Fabrique des Mobilités. Le projet porte en général sur les véhicules intermédiaires
+  (vélis). Reste factuel : n'invente rien qui ne soit pas dans les documents.
+  Les champs à valeurs multiples sont séparés par des virgules.
+
+# source: "ia"      -> rédigé par l'IA à partir des documents (laissé vide si absent)
+# source: "defaut"  -> valeur fixe (modifiable dans l'interface)
+# source: "geo"     -> coordonnées calculées par l'appli à partir du champ indiqué dans lieu_depuis
+# source: "vide"    -> toujours laissé vide (à remplir à la main sur le wiki)
+# liste_wiki: ...   -> les noms sont rapprochés de ceux de cette catégorie du wiki
+champs:
+  - nom: Lang
+    source: defaut
+    valeur: "Français"
+
+  - nom: shortDescription
+    source: ia
+    consigne: "Résumé du projet en 2 lignes maximum (environ 200 caractères)."
+
+  - nom: Main_Picture
+    source: vide      # nom d'un fichier image déjà téléversé sur le wiki
+
+  - nom: description
+    source: ia
+    consigne: >
+      Décrire le projet avec un maximum de détail, en wikitexte MediaWiki :
+      titres de section avec == Titre ==, listes à puces avec *, gras avec '''texte'''.
+      Sections conseillées si l'information existe : Contexte, Objectifs, Déroulement,
+      Véhicules utilisés, Partenaires, Résultats / chiffres clés, Suites envisagées.
+    entoure_par: ["<div><div>\n", "\n</div></div>"]
+
+  - nom: "coordonnées géo"
+    source: geo
+    lieu_depuis: location
+    format: "{lat}, {lon}"
+
+  - nom: location
+    source: ia
+    consigne: >
+      Lieu principal du projet : commune, et département si connu, tel qu'écrit
+      dans le document. Exemple : "Saint-Flour, Cantal".
+
+  - nom: url
+    source: ia
+    consigne: "Site web officiel du projet s'il figure dans les documents (une seule adresse)."
+
+  - nom: Tags
+    source: defaut
+    valeur: "#deploiement2026"
+
+  - nom: theme
+    source: defaut
+    valeur: "Véhicules intermédiaires, eXtrême Défi"
+
+  - nom: from
+    source: ia
+    liste_wiki: "Acteur"
+    consigne: >
+      Acteurs porteurs ou partenaires du projet (structures juridiques : collectivité,
+      entreprise, association...). Reprendre EXACTEMENT un nom de la liste des acteurs du
+      wiki quand il existe ; sinon écrire le nom tel qu'il apparaît dans le document.
+
+  - nom: to
+    source: ia
+    liste_wiki: "Acteur"
+    consigne: >
+      Structures bénéficiaires ou destinataires du projet (ex. collectivité qui accueille
+      l'expérimentation, entreprise utilisatrice), si elles sont distinctes des porteurs.
+      Même règle de nommage que pour les acteurs.
+
+  - nom: vehicule_equipe
+    source: ia
+    liste_wiki: "Vehicule"
+    consigne: >
+      Véhicules mentionnés dans le document. Reprendre EXACTEMENT un nom de la liste
+      des véhicules du wiki fournie.
+
+  - nom: contributeurs
+    source: ia
+    consigne: "Personnes nommées comme contributrices du projet dans les documents (Prénom Nom)."
+
+  - nom: referent
+    source: defaut
+    valeur: "Johana Casallas"
+
+  - nom: challenge
+    source: defaut
+    valeur: "L'extrême défi ADEME"
+
+  - nom: othercommon
+    source: ia
+    consigne: "Communs (ressources ouvertes du wiki) utilisés par le projet, seulement s'ils sont cités."
+
+  - nom: othercommon2
+    source: vide
+
+  - nom: "communauté d'intérêt"
+    source: defaut
+    valeur: "Communauté de l'extrême défi, GT Territoires et Expérimentations XD"
+
+  - nom: keyuser
+    source: ia
+    consigne: "Utilisateurs clés du projet (structures ou publics cibles), seulement s'ils sont cités."
+
+  - nom: Develop
+    source: vide
+
+  - nom: type
+    source: vide
+
+  - nom: forum
+    source: defaut
+    valeur: "https://forum.fabmob.io/t/experimentations-et-deploiement-2026-2027/2327"
+
+  - nom: chat
+    source: ia
+    consigne: "Lien vers un espace de discussion du projet, seulement s'il figure dans les documents."
+
+  - nom: tasks
+    source: vide
+
+  - nom: filessharing
+    source: ia
+    consigne: "Lien vers un espace de partage de fichiers du projet, seulement s'il figure dans les documents."
+
+  - nom: needs
+    source: ia
+    consigne: "Besoins du projet (financement, partenaires, compétences, véhicules...), en liste à puces wikitexte avec *."
+
+  - nom: complement
+    source: ia
+    consigne: "Informations complémentaires utiles qui ne rentrent pas dans la description."
+
+  - nom: etape
+    source: ia
+    consigne: "Étape d'avancement du projet (idée, préparation, expérimentation en cours, terminé...) et dates clés."
+
+# Paramètres trouvés en direct dans Modèle:Project mais absents de la liste ci-dessus :
+# proposés à l'IA ("remplis seulement si l'information est dans le document").
+completer_autres_champs_du_wiki: true
