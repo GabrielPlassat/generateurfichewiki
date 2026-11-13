@@ -153,6 +153,13 @@ def normaliser_date(valeur):
     return "", f"date « {v} » illisible : à saisir au format 2026-06-04T09:00:00.000Z"
 
 
+def sans_markdown(texte):
+    """Retire le gras markdown (**texte**) que l'IA ajoute parfois. Les « ** » en début de
+    ligne sont conservés : ce sont des sous-listes du wikitexte."""
+    texte = re.sub(r"\*\*(?=\S)(.+?)(?<=\S)\*\*", r"\1", texte, flags=re.S)
+    return re.sub(r"(?<!^)(?<!\n)\*\*", "", texte)
+
+
 def squelette(conf):
     """Le modèle vide, tel qu'il apparaît sur le wiki : {{Project |champ= ... }}."""
     return "\n".join([f"{{{{{conf['modele_wiki']}"] + [f"|{c['nom']}=" for c in conf["champs"]] + ["}}"])
@@ -216,7 +223,8 @@ def prompts_texte_long(conf, champ, titre, texte_docs):
     systeme = (
         conf["consigne_generale"].strip() + "\n" + _date_du_jour() + "\n\n"
         "Tu réponds UNIQUEMENT avec le texte demandé, en wikitexte MediaWiki, sans phrase "
-        "d'introduction, sans balises ``` et sans tableau. Tu écris en français. N'invente jamais."
+        "d'introduction, sans balises ``` et sans tableau. N'utilise jamais la syntaxe markdown "
+        "(pas de **gras**, pas de # titres) : uniquement le wikitexte. Tu écris en français. N'invente jamais."
     )
     utilisateur = (_blocs_contexte(conf, titre, texte_docs, {}, avec_listes=False)
                    + f"\n\n### Ta tâche : rédiger le champ « {champ['nom']} »\n" + champ["consigne"].strip())
@@ -302,6 +310,7 @@ def assembler(conf, titre, donnees, listes, valeurs_defaut):
             remarques.append(rq)
         else:
             val = str(donnees.get(nom, "") or "").strip()
+            val = sans_markdown(val)
             val = val.replace("|", "{{!}}")     # un « | » couperait le champ dans le modèle
             if c.get("liste_wiki"):
                 sources = [(listes.get(l, []), corr) for l, corr in listes_du_champ(c)]
