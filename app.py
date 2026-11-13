@@ -8,7 +8,8 @@ from urllib.parse import quote
 import streamlit as st
 
 from extraction import texte_depuis_fichier
-from generateur import charger_modeles, generer_fiche
+from generateur import categories_utilisees, charger_modeles, generer_fiche, probleme_titre
+from listes_wiki import charger_liste
 
 WIKI_BASE = "https://wikixd.fabmob.io"
 
@@ -20,6 +21,14 @@ def secret(nom, defaut=""):
         return st.secrets.get(nom, defaut)
     except Exception:
         return defaut
+
+
+@st.cache_data(ttl=3600, show_spinner="Chargement des listes du wiki…")
+def listes_du_wiki(categories):
+    listes, provenances = {}, {}
+    for cat in categories:
+        listes[cat], provenances[cat] = charger_liste(cat)
+    return listes, provenances
 
 
 # ------------------------------------------------------------ barre latérale : IA
@@ -44,6 +53,21 @@ modeles = charger_modeles()
 choix = st.selectbox("Type de fiche", list(modeles))
 conf = modeles[choix]
 
+listes, provenances = listes_du_wiki(tuple(categories_utilisees(conf)))
+for cat, prov in provenances.items():
+    if listes[cat]:
+        st.caption(f"Liste « {cat} » : {len(listes[cat])} noms — {prov}")
+    else:
+        st.warning(f"Liste « {cat} » du wiki indisponible : les noms ne pourront pas être vérifiés. "
+                   f"Lance le notebook rafraichir_listes_wiki.ipynb.", icon="⚠️")
+
+titre = st.text_input("Titre de la page wiki à créer",
+                      help="Le nom du projet, tel qu'il apparaîtra sur le wiki. Pas d'apostrophe.")
+st.caption("⚠️ N'utilise pas d'apostrophe dans le titre (ni ' ni ’).")
+erreur_titre = probleme_titre(titre) if titre else ""
+if erreur_titre:
+    st.error(erreur_titre)
+
 with st.expander("Valeurs par défaut (modifiables)"):
     defauts = {}
     for c in conf["champs"]:
@@ -53,7 +77,8 @@ with st.expander("Valeurs par défaut (modifiables)"):
 fichiers = st.file_uploader("Document source (PDF ou Word)",
                             type=["pdf", "docx", "doc", "txt", "md"], accept_multiple_files=True)
 
-if st.button("Générer la fiche", type="primary", disabled=not fichiers):
+pret = bool(fichiers) and bool(titre) and not erreur_titre
+if st.button("Générer la fiche", type="primary", disabled=not pret):
     textes = []
     for f in fichiers:
         try:
@@ -67,8 +92,8 @@ if st.button("Générer la fiche", type="primary", disabled=not fichiers):
         st.stop()
     with st.spinner("L'IA rédige la fiche…"):
         try:
-            st.session_state["resultat"] = generer_fiche(conf, texte_docs, defauts,
-                                                         fournisseur, cle, modele_ia)
+            st.session_state["resultat"] = generer_fiche(conf, titre.strip(), texte_docs, listes,
+                                                         defauts, fournisseur, cle, modele_ia)
         except Exception as e:
             st.error(f"Échec de la génération : {e}")
 
@@ -78,7 +103,8 @@ if res:
     st.divider()
     col1, col2 = st.columns([2, 1])
     with col1:
-        titre = st.text_input("Titre de la page", res["titre"])
+        titre_page = res["titre"]
+        st.markdown(f"**Page :** {titre_page}")
         wikitexte = st.text_area("Fiche en wikitexte (modifiable)", res["wikitexte"], height=520)
     with col2:
         st.subheader("À vérifier")
@@ -87,8 +113,8 @@ if res:
         for r in res["remarques"]:
             st.write("• " + r)
         st.download_button("⬇️ Télécharger (.txt)", wikitexte,
-                           file_name=f"{titre or 'fiche'}.txt", mime="text/plain")
-        if titre:
-            lien = f"{WIKI_BASE}/index.php?title={quote(titre.replace(' ', '_'))}&action=edit"
+                           file_name=f"{titre_page}.txt", mime="text/plain")
+        if titre_page:
+            lien = f"{WIKI_BASE}/index.php?title={quote(titre_page.replace(' ', '_'))}&action=edit"
             st.link_button("✏️ Ouvrir la page sur le wiki", lien)
             st.caption("Copie le wikitexte, ouvre la page, colle-le en mode « Modifier le wikicode », publie.")

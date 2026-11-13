@@ -1,0 +1,2 @@
+# Pages de Catégorie:Acteur sur https://wikixd.fabmob.io
+# mis à jour : jamais — lancer rafraichir_listes_wiki.ipynb

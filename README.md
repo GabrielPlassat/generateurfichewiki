@@ -8,12 +8,26 @@ L'appli **ne se connecte pas au wiki** : on relit la fiche, puis on la colle sur
 
 ## Ce que fait l'appli
 
-1. Lit le document (PDF texte, Word .docx avec ses tableaux, ancien Word .doc).
+1. Demande le **titre de la page wiki** (sans apostrophe) et lit le document
+   (PDF texte, Word .docx avec ses tableaux, ancien Word .doc).
 2. Demande à l'IA (Albert ou Claude) de remplir les champs « à rédiger » du modèle.
 3. Ajoute les valeurs par défaut (référent, challenge, forum…), modifiables dans l'interface.
 4. Calcule les coordonnées géographiques à partir du lieu (service public de l'IGN).
 5. Affiche la fiche (modifiable), une liste « À vérifier », un bouton de téléchargement et un
    lien qui ouvre la page sur le wiki.
+
+## Listes des véhicules et des acteurs du wiki
+
+Les champs `vehicule_equipe`, `from` et `to` n'acceptent **que** des noms de pages existant sur le wiki
+(catégories `Vehicule` et `Acteur`), avec leur orthographe exacte. Les autres noms sont écartés et
+signalés dans « À vérifier ».
+
+L'appli essaie de lire ces listes en direct sur le wiki ; si le wiki refuse (erreur 402/403),
+elle utilise les fichiers `donnees_wiki/Categorie_Vehicule.txt` et `donnees_wiki/Categorie_Acteur.txt`.
+
+**Mettre à jour les listes** : ouvrir `rafraichir_listes_wiki.ipynb` dans Google Colab, tout exécuter,
+puis déposer les fichiers téléchargés dans le dossier `donnees_wiki/` du dépôt GitHub
+(*Add file → Upload files*). On peut aussi modifier ces fichiers à la main sur GitHub : un nom par ligne.
 
 ## Mise en ligne sur Streamlit Cloud
 
@@ -40,11 +54,12 @@ Pour un nouveau type (Évènement, Acteur, Véhicule) : copier `projet.yaml`, ad
 | `generateur.py` | prépare la demande à l'IA et assemble la fiche |
 | `extraction.py` | lecture des PDF / Word |
 | `ia.py` | appel à Albert ou Claude |
+| `listes_wiki.py` | listes des véhicules / acteurs du wiki (en direct ou fichiers `donnees_wiki/`) |
+| `rafraichir_listes_wiki.ipynb` | notebook Colab qui met à jour les fichiers `donnees_wiki/` |
 | `geo.py` | coordonnées géographiques (IGN / Base Adresse Nationale) |
 | `packages.txt` | outil `antiword` pour lire les anciens .doc |
 
 ## Limites
 
 - PDF scannés (images) : pas de texte lisible → l'appli le signale.
-- Les noms de véhicules et d'acteurs sont repris tels qu'écrits dans le document : vérifier qu'ils
-  correspondent aux noms des pages du wiki.
+- Un véhicule ou un acteur sans page sur le wiki est écarté : créer sa page, puis l'ajouter à la main.
