@@ -12,6 +12,13 @@ consigne_generale: >
   (vélis). Reste factuel : n'invente rien qui ne soit pas dans le document.
   Les champs à valeurs multiples sont séparés par des virgules.
 
+# La source (page web, programme…) peut présenter plusieurs évènements : on ne garde
+# que le passage qui concerne ce sujet, puis la fiche est rédigée à partir de ce passage.
+objets_source: "évènements"
+filtre_sujet: >
+  les véhicules intermédiaires (vélis), les quadricycles, les véhicules de catégorie L,
+  ou l'eXtrême Défi Mobilité de l'ADEME.
+
 # Mêmes règles que modeles/projet.yaml. En plus :
 # valeurs_autorisees: [...]  -> seules ces valeurs sont gardées (la plus proche)
 # format: date_iso           -> date convertie au format 2026-06-04T09:00:00.000Z
@@ -86,7 +93,14 @@ champs:
     valeur: "Communauté de l'extrême défi"
 
   - nom: attendee
-    source: vide
+    source: ia
+    liste_wiki: Utilisateur
+    correspondance: stricte     # une personne : pas de rapprochement approximatif
+    consigne: >
+      Personnes citées pour cet évènement (intervenants, animateurs, participants nommés),
+      séparées par des virgules. Pour chacune, le nom de la liste « Utilisateur » du wiki
+      si elle y figure, sinon tel qu'écrit dans le document (l'application ne gardera que
+      celles inscrites sur le wiki).
 
   - nom: startDate
     source: ia

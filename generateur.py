@@ -5,6 +5,8 @@ import re
 import unicodedata
 from pathlib import Path
 
+from datetime import date
+
 import yaml
 
 from geo import geocoder
@@ -60,11 +62,13 @@ def noms_probables(noms_wiki, texte_docs):
     if len(noms_wiki) <= MAX_NOMS_LISTE_COMPLETE:
         return noms_wiki
     texte = " " + normaliser(texte_docs) + " "
+    texte_colle = texte.replace(" ", "")
     garde = []
     for nom in noms_wiki:
         n = normaliser(nom)
         mots = [m for m in n.split() if len(m) >= 3] or n.split()
-        if n and (f" {n} " in texte or (mots and all(f" {m} " in texte for m in mots))):
+        if n and (f" {n} " in texte or (mots and all(f" {m} " in texte for m in mots))
+                  or (len(n.replace(" ", "")) >= 8 and n.replace(" ", "") in texte_colle)):
             garde.append(nom)
     return garde
 
@@ -76,6 +80,8 @@ def score_proximite(a, b):
     ma, mb = a.split(), b.split()
     if sorted(ma) == sorted(mb):                        # mêmes mots, ordre différent
         return 0.98
+    if a.replace(" ", "") == b.replace(" ", ""):        # « bertrandbarbedette » = « bertrand barbedette »
+        return 0.97
     court, long_ = sorted((a, b), key=len)
     if f" {court} " in f" {long_} ":                    # « cargolab » dans « vehicule cargolab »
         return 0.8 + 0.2 * len(court) / len(long_)
@@ -171,16 +177,23 @@ def _blocs_contexte(conf, titre, texte_docs, listes, avec_listes=True):
 CLE_LIEU_GEO = "lieu_pour_coordonnees"   # clé interne : lieu à géocoder (pas écrit dans la fiche)
 
 
+def _date_du_jour():
+    return (f"Date du jour : {date.today().isoformat()}. Si une date du document n'indique pas "
+            "l'année, déduis-la du document (année de la manifestation) ; à défaut, prends la "
+            "prochaine occurrence de cette date à partir d'aujourd'hui.")
+
+
 def prompts_champs(conf, titre, texte_docs, listes):
     """Demande n°1 : tous les champs courts, en JSON."""
     systeme = (
-        conf["consigne_generale"].strip() + "\n\n"
+        conf["consigne_generale"].strip() + "\n" + _date_du_jour() + "\n\n"
         "Tu réponds UNIQUEMENT avec un objet JSON valide, sans texte autour.\n"
         "Tu écris en français. Si une information est absente du document, "
         "laisse le champ vide (\"\") : n'invente jamais.\n"
         "Pour les champs liés à une liste du wiki : pour chaque véhicule, acteur ou personne "
         "cité dans le document, choisis dans la liste le nom le plus proche et recopie-le à "
-        "l'identique (même orthographe, mêmes majuscules, mêmes accents)."
+        "l'identique (même orthographe, mêmes majuscules, mêmes accents). Si tu ne le trouves "
+        "pas dans la liste, écris-le tel qu'il apparaît dans le document : l'application vérifiera."
     )
     a_remplir = {}
     for c in conf["champs"]:
@@ -201,7 +214,7 @@ def prompts_champs(conf, titre, texte_docs, listes):
 def prompts_texte_long(conf, champ, titre, texte_docs):
     """Demande n°2 : un champ long (la description), en texte libre."""
     systeme = (
-        conf["consigne_generale"].strip() + "\n\n"
+        conf["consigne_generale"].strip() + "\n" + _date_du_jour() + "\n\n"
         "Tu réponds UNIQUEMENT avec le texte demandé, en wikitexte MediaWiki, sans phrase "
         "d'introduction, sans balises ``` et sans tableau. Tu écris en français. N'invente jamais."
     )
@@ -210,15 +223,53 @@ def prompts_texte_long(conf, champ, titre, texte_docs):
     return systeme, utilisateur
 
 
+AUCUN_PASSAGE = "AUCUN_PASSAGE"
+
+
+def prompts_filtre(conf, texte_docs):
+    """Demande n°0 (optionnelle) : ne garder que le passage de la source qui concerne le sujet."""
+    systeme = (
+        "Tu extrais des passages de textes. Tu recopies MOT POUR MOT, sans reformuler, sans "
+        "résumer et sans rien ajouter. Tu réponds uniquement avec le texte extrait."
+    )
+    utilisateur = (
+        "### Source\n" + texte_docs[:MAX_CARACTERES_DOCS] + "\n\n### Ta tâche\n"
+        f"Cette source peut présenter plusieurs {conf.get('objets_source', 'éléments')}. "
+        f"Repère celui (ou ceux) qui concerne : {' '.join(conf['filtre_sujet'].split())}\n\n"
+        "1. Recopie mot pour mot tout le passage qui le décrit : titre, dates, horaires, lieu, "
+        "description, intervenants, informations pratiques.\n"
+        "2. Puis, sous la ligne « Contexte général : », recopie mot pour mot les seules "
+        "informations générales de la source qui s'appliquent aussi à ce passage (nom et année "
+        "de la manifestation, lieu, adresse, organisateur général, horaires d'ouverture). "
+        "N'inclus RIEN des autres éléments de la source (autres évènements, autres intervenants).\n"
+        f"Si aucun passage ne concerne ce sujet, réponds uniquement : {AUCUN_PASSAGE}"
+    )
+    return systeme, utilisateur
+
+
 # ---------------------------------------------------------------- génération
 def generer_fiche(conf, titre, texte_docs, listes, valeurs_defaut, fournisseur, cle, modele_ia):
+    extrait, remarque_filtre = None, ""
+    if conf.get("filtre_sujet"):
+        systeme, utilisateur = prompts_filtre(conf, texte_docs)
+        extrait = nettoyer_texte(appeler_ia(systeme, utilisateur, fournisseur, cle, modele_ia))
+        if AUCUN_PASSAGE in extrait or len(extrait) < 50:
+            remarque_filtre = ("Aucun passage sur le sujet trouvé dans la source : "
+                               "la fiche est rédigée à partir de toute la source.")
+            extrait = None
+        else:
+            texte_docs = extrait
     systeme, utilisateur = prompts_champs(conf, titre, texte_docs, listes)
     donnees = lire_json(appeler_ia(systeme, utilisateur, fournisseur, cle, modele_ia))
     for c in conf["champs"]:
         if c.get("redaction_separee"):
             systeme, utilisateur = prompts_texte_long(conf, c, titre, texte_docs)
             donnees[c["nom"]] = nettoyer_texte(appeler_ia(systeme, utilisateur, fournisseur, cle, modele_ia))
-    return assembler(conf, titre, donnees, listes, valeurs_defaut)
+    res = assembler(conf, titre, donnees, listes, valeurs_defaut)
+    res["extrait"] = extrait
+    if remarque_filtre:
+        res["remarques"].insert(0, remarque_filtre)
+    return res
 
 
 def coordonnees(c, lieu):

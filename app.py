@@ -132,6 +132,10 @@ if res:
         st.markdown(f"**Page :** {titre_page}")
         wikitexte = st.text_area("Fiche en wikitexte (modifiable)", key="wikitexte", height=600)
     with col2:
+        if res.get("extrait"):
+            with st.expander("Passage retenu dans la source"):
+                st.caption("Seul ce passage a servi à rédiger la fiche.")
+                st.text(res["extrait"])
         st.subheader("À vérifier")
         if res["remarques_ia"]:
             st.info(res["remarques_ia"])
