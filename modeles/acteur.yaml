@@ -65,7 +65,11 @@ champs:
     valeur: "Véhicules intermédiaires,eXtrême Défi"
 
   - nom: email
-    source: vide
+    source: ia
+    format: email
+    consigne: >
+      Adresse email de contact de la structure, si elle figure dans le document
+      (ex. contact@exemple.fr). Sinon laisse vide.
 
   - nom: url
     source: ia
@@ -118,7 +122,7 @@ champs:
 
   - nom: type
     source: ia
-    valeurs_autorisees: [Agence, Assocation, Conseil, Collectivité, Entreprise, Entrepreneur,
+    valeurs_autorisees: [Agence, Association, Conseil, Collectivité, Entreprise, Entrepreneur,
                          Fondation, Groupe public, Incubateur, Indépendant, Laboratoire, Ecole,
                          Pôle, Réseau, Startup, Partenaire, Constructeur véhicule, Equipementier]
     consigne: >

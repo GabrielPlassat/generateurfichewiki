@@ -326,6 +326,11 @@ def assembler(conf, titre, donnees, listes, valeurs_defaut, liens=()):
                 val, rq = filtrer_sources(val, [(c["valeurs_autorisees"], "valeur")],
                                           "valeur non autorisée")
                 remarques += [f"{nom} : {r}" for r in rq]
+            if c.get("format") == "email":           # on ne garde qu'une adresse email valide
+                m = re.search(r"[\w.+-]+@[\w-]+(\.[\w-]+)+", val)
+                if val and not m:
+                    remarques.append(f"{nom} : « {val} » n'est pas une adresse email, champ laissé vide")
+                val = m.group(0) if m else ""
             if c.get("format") == "date_iso":
                 val, rq = normaliser_date(val)
                 if rq:
