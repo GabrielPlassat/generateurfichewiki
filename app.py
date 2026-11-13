@@ -8,7 +8,8 @@ from urllib.parse import quote
 import streamlit as st
 
 from extraction import texte_depuis_fichier
-from generateur import categories_utilisees, charger_modeles, generer_fiche, probleme_titre
+from generateur import (categories_utilisees, charger_modeles, coordonnees, generer_fiche,
+                        probleme_titre, remplacer_champ)
 from listes_wiki import charger_liste
 
 WIKI_BASE = "https://wikixd.fabmob.io"
@@ -92,12 +93,27 @@ if st.button("Générer la fiche", type="primary", disabled=not pret):
         st.stop()
     with st.spinner("L'IA rédige la fiche…"):
         try:
-            st.session_state["resultat"] = generer_fiche(conf, titre.strip(), texte_docs, listes,
-                                                         defauts, fournisseur, cle, modele_ia)
+            res = generer_fiche(conf, titre.strip(), texte_docs, listes,
+                                defauts, fournisseur, cle, modele_ia)
+            st.session_state["resultat"] = res
+            st.session_state["wikitexte"] = res["wikitexte"]
+            st.session_state["lieu"] = res["lieu"]
         except Exception as e:
             st.error(f"Échec de la génération : {e}")
 
 # ------------------------------------------------------------ résultat
+champ_geo = next((c for c in conf["champs"] if c["source"] == "geo"), None)
+
+
+def recalculer_coordonnees():
+    val, rq = coordonnees(champ_geo, st.session_state["lieu"])
+    st.session_state["wikitexte"] = remplacer_champ(st.session_state["wikitexte"], champ_geo["nom"], val)
+    if champ_geo.get("lieu_depuis"):
+        st.session_state["wikitexte"] = remplacer_champ(st.session_state["wikitexte"],
+                                                        champ_geo["lieu_depuis"], st.session_state["lieu"])
+    st.session_state["message_geo"] = rq
+
+
 res = st.session_state.get("resultat")
 if res:
     st.divider()
@@ -105,13 +121,23 @@ if res:
     with col1:
         titre_page = res["titre"]
         st.markdown(f"**Page :** {titre_page}")
-        wikitexte = st.text_area("Fiche en wikitexte (modifiable)", res["wikitexte"], height=520)
+        wikitexte = st.text_area("Fiche en wikitexte (modifiable)", key="wikitexte", height=600)
     with col2:
         st.subheader("À vérifier")
         if res["remarques_ia"]:
             st.info(res["remarques_ia"])
         for r in res["remarques"]:
             st.write("• " + r)
+
+        if champ_geo:
+            st.subheader("Coordonnées")
+            st.text_input("Lieu (commune, département)", key="lieu",
+                          help="Exemple : Saint-Flour, Cantal — ou une adresse complète.")
+            st.button("📍 Recalculer les coordonnées", on_click=recalculer_coordonnees)
+            if st.session_state.get("message_geo"):
+                st.caption(st.session_state["message_geo"])
+
+        st.subheader("Publier")
         st.download_button("⬇️ Télécharger (.txt)", wikitexte,
                            file_name=f"{titre_page}.txt", mime="text/plain")
         if titre_page:

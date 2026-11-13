@@ -1,13 +1,14 @@
 """Moteur générique : modèle YAML + document source  ->  fiche wiki en wikitexte."""
 import difflib
 import json
+import re
 import unicodedata
 from pathlib import Path
 
 import yaml
 
 from geo import geocoder
-from ia import appeler_ia, lire_json
+from ia import appeler_ia, lire_json, nettoyer_texte
 
 DOSSIER_MODELES = Path(__file__).parent / "modeles"
 MAX_CARACTERES_DOCS = 60_000      # au-delà, on tronque (limite de contexte de l'IA)
@@ -88,48 +89,79 @@ def squelette(conf):
 
 
 # ---------------------------------------------------------------- demande à l'IA
-def construire_prompts(conf, titre, texte_docs, listes):
+def _blocs_contexte(conf, titre, texte_docs, listes, avec_listes=True):
+    blocs = [f"### Modèle de fiche « {conf['nom_affiche']} » du wiki (pour information)\n" + squelette(conf),
+             f"### Titre de la page (choisi par l'utilisateur)\n{titre}"]
+    if avec_listes:
+        for cat in categories_utilisees(conf):
+            noms = noms_probables(listes.get(cat, []), texte_docs)
+            champs = ", ".join(c["nom"] for c in conf["champs"] if c.get("liste_wiki") == cat)
+            if noms:
+                blocs.append(f"### Liste « {cat} » du wiki — seuls noms autorisés pour : {champs}\n"
+                             + "\n".join(noms))
+    blocs.append("### Document source\n" + texte_docs[:MAX_CARACTERES_DOCS])
+    return "\n\n".join(blocs)
+
+
+def prompts_champs(conf, titre, texte_docs, listes):
+    """Demande n°1 : tous les champs courts, en JSON."""
     systeme = (
         conf["consigne_generale"].strip() + "\n\n"
         "Tu réponds UNIQUEMENT avec un objet JSON valide, sans texte autour.\n"
         "Tu écris en français. Si une information est absente du document, "
-        "laisse le champ vide (\"\") plutôt que d'inventer.\n"
+        "laisse le champ vide (\"\") : n'invente jamais.\n"
         "Pour les champs liés à une liste du wiki, tu n'utilises QUE des noms copiés "
         "à l'identique depuis cette liste (même orthographe, mêmes majuscules, mêmes accents)."
     )
-    blocs = [f"### Modèle de fiche « {conf['nom_affiche']} » du wiki (pour information)\n" + squelette(conf),
-             f"### Titre de la page (choisi par l'utilisateur)\n{titre}"]
-    for cat in categories_utilisees(conf):
-        noms = noms_probables(listes.get(cat, []), texte_docs)
-        champs = ", ".join(c["nom"] for c in conf["champs"] if c.get("liste_wiki") == cat)
-        if noms:
-            blocs.append(f"### Liste « {cat} » du wiki — seuls noms autorisés pour : {champs}\n" + "\n".join(noms))
-
-    a_remplir = {}
-    for c in conf["champs"]:
-        if c["source"] == "ia":
-            a_remplir[c["nom"]] = " ".join(c["consigne"].split())
+    a_remplir = {c["nom"]: " ".join(c["consigne"].split())
+                 for c in conf["champs"] if c["source"] == "ia" and not c.get("redaction_separee")}
     a_remplir["remarques"] = "Ce qui manque ou est incertain, pour la relecture humaine (1 à 3 phrases)."
+    utilisateur = (_blocs_contexte(conf, titre, texte_docs, listes)
+                   + "\n\n### Ta tâche\nRemplis ce JSON (clés exactement identiques) :\n"
+                   + json.dumps(a_remplir, ensure_ascii=False, indent=2))
+    return systeme, utilisateur
 
-    utilisateur = (
-        "\n\n".join(blocs)
-        + "\n\n### Document source\n" + texte_docs[:MAX_CARACTERES_DOCS]
-        + "\n\n### Ta tâche\nRemplis ce JSON (clés exactement identiques) :\n"
-        + json.dumps(a_remplir, ensure_ascii=False, indent=2)
+
+def prompts_texte_long(conf, champ, titre, texte_docs):
+    """Demande n°2 : un champ long (la description), en texte libre."""
+    systeme = (
+        conf["consigne_generale"].strip() + "\n\n"
+        "Tu réponds UNIQUEMENT avec le texte demandé, en wikitexte MediaWiki, sans phrase "
+        "d'introduction, sans balises ``` et sans tableau. Tu écris en français. N'invente jamais."
     )
+    utilisateur = (_blocs_contexte(conf, titre, texte_docs, {}, avec_listes=False)
+                   + f"\n\n### Ta tâche : rédiger le champ « {champ['nom']} »\n" + champ["consigne"].strip())
     return systeme, utilisateur
 
 
 # ---------------------------------------------------------------- génération
 def generer_fiche(conf, titre, texte_docs, listes, valeurs_defaut, fournisseur, cle, modele_ia):
-    systeme, utilisateur = construire_prompts(conf, titre, texte_docs, listes)
-    reponse = appeler_ia(systeme, utilisateur, fournisseur, cle, modele_ia)
-    return assembler(conf, titre, lire_json(reponse), listes, valeurs_defaut)
+    systeme, utilisateur = prompts_champs(conf, titre, texte_docs, listes)
+    donnees = lire_json(appeler_ia(systeme, utilisateur, fournisseur, cle, modele_ia))
+    for c in conf["champs"]:
+        if c.get("redaction_separee"):
+            systeme, utilisateur = prompts_texte_long(conf, c, titre, texte_docs)
+            donnees[c["nom"]] = nettoyer_texte(appeler_ia(systeme, utilisateur, fournisseur, cle, modele_ia))
+    return assembler(conf, titre, donnees, listes, valeurs_defaut)
+
+
+def coordonnees(c, lieu):
+    """Renvoie (valeur du champ, remarque)."""
+    lat, lon, label, raison = geocoder(lieu)
+    if lat is None:
+        return "", f"Coordonnées non trouvées pour « {lieu or '—'} » ({raison}) : corrige le lieu ci-dessous"
+    return (c.get("format", "{lat}, {lon}").format(lat=lat, lon=lon),
+            f"Lieu « {lieu} » localisé : {label} ({lat}, {lon})")
+
+
+def remplacer_champ(wikitexte, nom, valeur):
+    """Remplace la valeur d'un champ d'une ligne (ex. coordonnées) dans la fiche."""
+    return re.sub(rf"^\|{re.escape(nom)}=.*$", lambda m: f"|{nom}={valeur}", wikitexte, count=1, flags=re.M)
 
 
 def assembler(conf, titre, donnees, listes, valeurs_defaut):
-    """Fusionne réponse de l'IA + valeurs par défaut + coordonnées -> wikitexte."""
-    remarques = []
+    """Fusionne réponses de l'IA + valeurs par défaut + coordonnées -> wikitexte."""
+    remarques, lieu = [], ""
     lignes = [f"{{{{{conf['modele_wiki']}"]
     for c in conf["champs"]:
         nom, source = c["nom"], c["source"]
@@ -139,16 +171,11 @@ def assembler(conf, titre, donnees, listes, valeurs_defaut):
             val = valeurs_defaut.get(nom, c.get("valeur", ""))
         elif source == "geo":
             lieu = str(donnees.get(c.get("lieu_depuis", "location"), "") or "").strip()
-            res = geocoder(lieu) if lieu else None
-            if res:
-                lat, lon, label = res
-                val = c.get("format", "{lat}, {lon}").format(lat=lat, lon=lon)
-                remarques.append(f"Lieu « {lieu} » localisé : {label} ({lat}, {lon})")
-            else:
-                val = ""
-                remarques.append(f"Coordonnées non trouvées ({lieu or 'aucun lieu dans le document'}) : à saisir à la main")
+            val, rq = coordonnees(c, lieu)
+            remarques.append(rq)
         else:
             val = str(donnees.get(nom, "") or "").strip()
+            val = val.replace("|", "{{!}}")     # un « | » couperait le champ dans le modèle
             if c.get("liste_wiki"):
                 val, rq = filtrer_noms(val, listes.get(c["liste_wiki"], []))
                 remarques += [f"{nom} : {r}" for r in rq]
@@ -164,6 +191,7 @@ def assembler(conf, titre, donnees, listes, valeurs_defaut):
     return {
         "titre": titre,
         "wikitexte": "\n".join(lignes),
+        "lieu": lieu,
         "remarques_ia": str(donnees.get("remarques", "")).strip(),
         "remarques": remarques,
     }

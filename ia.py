@@ -10,7 +10,7 @@ def appeler_ia(systeme, utilisateur, fournisseur, cle, modele):
         from openai import OpenAI
         client = OpenAI(api_key=cle, base_url=ALBERT_URL)
         rep = client.chat.completions.create(
-            model=modele, temperature=0.2,
+            model=modele, temperature=0.2, max_tokens=8000,
             messages=[{"role": "system", "content": systeme},
                       {"role": "user", "content": utilisateur}])
         return rep.choices[0].message.content
@@ -30,4 +30,11 @@ def lire_json(texte):
     debut, fin = texte.find("{"), texte.rfind("}")
     if debut == -1 or fin == -1:
         raise ValueError("L'IA n'a pas renvoyé de JSON :\n" + texte[:500])
-    return json.loads(texte[debut:fin + 1])
+    return json.loads(texte[debut:fin + 1], strict=False)   # tolère les retours à la ligne
+
+
+def nettoyer_texte(texte):
+    """Retire les éventuelles balises ``` autour d'un texte libre."""
+    texte = texte.strip()
+    texte = re.sub(r"^```[a-zA-Z]*\n?", "", texte)
+    return re.sub(r"\n?```$", "", texte).strip()

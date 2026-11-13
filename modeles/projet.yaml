@@ -34,11 +34,26 @@ champs:
 
   - nom: description
     source: ia
+    redaction_separee: true     # rédigée seule, en texte libre, pour être plus détaillée
     consigne: >
-      Décrire le projet avec un maximum de détail, en wikitexte MediaWiki :
-      titres de section avec == Titre ==, listes à puces avec *, gras avec '''texte'''.
-      Sections conseillées si l'information existe : Contexte, Objectifs, Déroulement,
-      Véhicules utilisés, Partenaires, Résultats / chiffres clés, Suites envisagées.
+      Rédige la description complète du projet en wikitexte MediaWiki
+      (titres de section avec == Titre ==, listes à puces avec *, gras avec '''texte''').
+
+      NE RÉSUME PAS : reprends un maximum d'informations du document, avec ses chiffres,
+      dates, lieux, durées, budgets, publics, méthodes, résultats et retours d'expérience.
+      Développe chaque point présent dans le document. La description doit être longue
+      si le document est riche. Reformule en phrases claires, mais garde tous les détails.
+
+      N'INVENTE RIEN : chaque information doit venir du document. Si une rubrique n'est
+      pas renseignée dans le document, ne crée pas la section.
+
+      NE METS PAS dans la description ce qui a déjà son propre champ dans la fiche :
+      la liste des véhicules utilisés ou testés, la liste des partenaires / acteurs,
+      les suites envisagées et l'étape d'avancement, les besoins du projet, le lieu.
+
+      Sections possibles (seulement si le document les renseigne) : Contexte, Objectifs,
+      Déroulement / organisation, Publics et usages, Résultats et chiffres clés,
+      Enseignements.
     entoure_par: ["<div><div>\n", "\n</div></div>"]
 
   - nom: "coordonnées géo"
@@ -144,4 +159,6 @@ champs:
 
   - nom: etape
     source: ia
-    consigne: "Étape d'avancement du projet (idée, préparation, expérimentation en cours, terminé...) et dates clés."
+    consigne: >
+      Étape d'avancement du projet (idée, préparation, expérimentation en cours, terminé...),
+      dates clés, et suites envisagées. Liste à puces wikitexte avec * si plusieurs éléments.
