@@ -51,7 +51,7 @@ st.caption("Choisis le type de fiche, dépose un document ou un lien qui le déc
            "la fiche au format du wiki. Tu relis, puis tu la colles sur le wiki.")
 
 modeles = charger_modeles()
-choix = st.selectbox("Type de fiche", list(modeles))
+choix = st.selectbox("Type de fiche (choisir dans la liste)", list(modeles))
 conf = modeles[choix]
 
 listes, provenances = listes_du_wiki(tuple(categories_utilisees(conf)))
