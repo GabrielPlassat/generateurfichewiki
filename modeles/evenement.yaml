@@ -1,0 +1,117 @@
+# =====================================================================
+#  Modèle "Évènement"  ->  {{event ...}} pour le wiki XD (wikixd.fabmob.io)
+#  Champs, ordre et consignes : doc "Modèle Evènement".
+# =====================================================================
+
+nom_affiche: "Évènement"
+ordre: 2                         # position dans le menu
+modele_wiki: "event"              # nom écrit après {{ dans la fiche
+consigne_generale: >
+  Tu rédiges une fiche Évènement pour le wiki de l'eXtrême Défi Mobilité (ADEME) /
+  Fabrique des Mobilités. L'évènement porte en général sur les véhicules intermédiaires
+  (vélis). Reste factuel : n'invente rien qui ne soit pas dans le document.
+  Les champs à valeurs multiples sont séparés par des virgules.
+
+# Mêmes règles que modeles/projet.yaml. En plus :
+# valeurs_autorisees: [...]  -> seules ces valeurs sont gardées (la plus proche)
+# format: date_iso           -> date convertie au format 2026-06-04T09:00:00.000Z
+# liste_wiki: [A, B]         -> on cherche d'abord dans A, puis dans B
+champs:
+  - nom: Main_Picture
+    source: vide
+
+  - nom: Lang
+    source: defaut
+    valeur: "Français"
+
+  - nom: LangLink
+    source: vide
+
+  - nom: name
+    source: ia
+    consigne: "Le nom de l'évènement, tel qu'écrit dans le document."
+
+  - nom: type
+    source: ia
+    valeurs_autorisees: [Atelier, Conférence, Formation, Hackathon, Meetup, Résidence, Salon, Webinar]
+    consigne: >
+      Type(s) de l'évènement, choisis parmi les valeurs autorisées. Plusieurs possibles,
+      séparés par une virgule. Exemple : Atelier, Résidence, Salon
+
+  - nom: description
+    source: ia
+    redaction_separee: true
+    consigne: >
+      Rédige une description précise de l'évènement en wikitexte MediaWiki
+      (titres de section avec == Titre ==, listes à puces avec *, gras avec '''texte''').
+
+      NE RÉSUME PAS : reprends un maximum d'informations du document : objectifs,
+      programme et déroulé (avec les horaires des séquences s'ils sont donnés), intervenants
+      et leurs sujets, thèmes abordés, véhicules présentés, publics visés, modalités
+      d'inscription et de participation, tarifs, chiffres, résultats s'il s'agit d'un
+      évènement passé.
+
+      N'INVENTE RIEN : chaque information doit venir du document. Si une rubrique n'est
+      pas renseignée, ne crée pas la section.
+
+      NE RÉPÈTE PAS en tête de description le nom, le type, les dates, le lieu et
+      l'organisateur, qui ont leur propre champ dans la fiche.
+
+      Sections possibles (seulement si le document les renseigne) : Objectifs, Programme,
+      Intervenants, Publics, Informations pratiques, Bilan.
+
+  - nom: Tags
+    source: defaut
+    valeur: ""
+
+  - nom: Theme
+    source: defaut
+    valeur: "Véhicules intermédiaires, eXtrême Défi"
+
+  - nom: Location
+    source: ia
+    consigne: "Lieu de l'évènement : nom du lieu, ville, rue (dans cet ordre, séparés par des virgules)."
+
+  - nom: "Coordonnées géo"
+    source: geo
+    lieu_depuis: Location
+    format: "{lat},{lon}"       # aucun espace ; pour inverser l'ordre : "{lon},{lat}"
+    consigne: >
+      Adresse de l'évènement la plus précise possible pour calculer les coordonnées :
+      numéro et rue, code postal, commune (ex. "12 rue de la Paix, 75002 Paris").
+      Si seule la commune est connue : "Commune, Département".
+
+  - nom: communauté
+    source: defaut
+    valeur: "Communauté de l'extrême défi"
+
+  - nom: attendee
+    source: vide
+
+  - nom: startDate
+    source: ia
+    format: date_iso
+    consigne: "Date et heure de début, au format 2026-06-04T09:00:00.000Z (heure locale indiquée dans le document)."
+
+  - nom: doorTime
+    source: vide
+
+  - nom: endDate
+    source: ia
+    format: date_iso
+    consigne: "Date et heure de fin, au format 2026-06-04T18:00:00.000Z (heure locale indiquée dans le document)."
+
+  - nom: organizer
+    source: ia
+    liste_wiki: [Utilisateur, Acteur]
+    correspondance: [stricte, proche]
+    consigne: >
+      Organisateur de l'évènement : une personne citée dans le document et présente dans
+      la liste « Utilisateur » du wiki, ou une structure présente dans la liste « Acteur »
+      du wiki. Prends le nom le plus proche de la liste, copié à l'identique ; sinon laisse vide.
+
+  - nom: contact
+    source: vide
+
+  - nom: CR_at
+    source: vide

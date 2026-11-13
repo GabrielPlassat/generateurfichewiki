@@ -7,7 +7,7 @@ from urllib.parse import quote
 
 import streamlit as st
 
-from extraction import texte_depuis_fichier
+from extraction import texte_depuis_fichier, texte_depuis_url
 from generateur import (categories_utilisees, charger_modeles, coordonnees, generer_fiche,
                         probleme_titre, remplacer_champ)
 from listes_wiki import charger_liste
@@ -47,7 +47,7 @@ modele_ia = st.sidebar.text_input("Modèle", modele_ia)
 
 # ------------------------------------------------------------ page principale
 st.title("📝 Générateur de fiches pour le wiki XD")
-st.caption("Choisis le type de fiche, dépose le document qui décrit le projet : l'IA rédige "
+st.caption("Choisis le type de fiche, dépose un document ou un lien qui le décrit : l'IA rédige "
            "la fiche au format du wiki. Tu relis, puis tu la colles sur le wiki.")
 
 modeles = charger_modeles()
@@ -63,7 +63,7 @@ for cat, prov in provenances.items():
                    f"Lance le notebook rafraichir_listes_wiki.ipynb.", icon="⚠️")
 
 titre = st.text_input("Titre de la page wiki à créer",
-                      help="Le nom du projet, tel qu'il apparaîtra sur le wiki. Pas d'apostrophe.")
+                      help="Le nom du projet ou de l'évènement, tel qu'il apparaîtra sur le wiki. Pas d'apostrophe.")
 st.caption("⚠️ N'utilise pas d'apostrophe dans le titre (ni ' ni ’).")
 erreur_titre = probleme_titre(titre) if titre else ""
 if erreur_titre:
@@ -75,10 +75,13 @@ with st.expander("Valeurs par défaut (modifiables)"):
         if c["source"] == "defaut":
             defauts[c["nom"]] = st.text_input(c["nom"], c.get("valeur", ""), key=f"{choix}-{c['nom']}")
 
-fichiers = st.file_uploader("Document source (PDF ou Word)",
+st.markdown("**Source** : un document, un lien, ou les deux")
+fichiers = st.file_uploader("Document (PDF ou Word)",
                             type=["pdf", "docx", "doc", "txt", "md"], accept_multiple_files=True)
+lien = st.text_input("Lien vers une page web qui décrit le projet ou l'évènement",
+                     placeholder="https://…")
 
-pret = bool(fichiers) and bool(titre) and not erreur_titre
+pret = (bool(fichiers) or bool(lien.strip())) and bool(titre) and not erreur_titre
 if st.button("Générer la fiche", type="primary", disabled=not pret):
     textes = []
     for f in fichiers:
@@ -86,10 +89,16 @@ if st.button("Générer la fiche", type="primary", disabled=not pret):
             textes.append(f"===== Document : {f.name} =====\n" + texte_depuis_fichier(f.name, f.getvalue()))
         except Exception as e:
             st.error(str(e))
+    if lien.strip():
+        with st.spinner("Lecture du lien…"):
+            try:
+                textes.append(f"===== Page web : {lien.strip()} =====\n" + texte_depuis_url(lien))
+            except Exception as e:
+                st.error(str(e))
     texte_docs = "\n\n".join(textes)
     if len(texte_docs.strip()) < 200:
-        st.error("Presque aucun texte n'a pu être lu. Le PDF est peut-être scanné (image) : "
-                 "il faut un PDF avec du texte sélectionnable.")
+        st.error("Presque aucun texte n'a pu être lu. Le PDF est peut-être scanné (image), ou la "
+                 "page web est construite en JavaScript : enregistre-la en PDF et dépose-la.")
         st.stop()
     with st.spinner("L'IA rédige la fiche…"):
         try:
@@ -108,7 +117,7 @@ champ_geo = next((c for c in conf["champs"] if c["source"] == "geo"), None)
 def recalculer_coordonnees():
     val, rq = coordonnees(champ_geo, st.session_state["lieu"])
     st.session_state["wikitexte"] = remplacer_champ(st.session_state["wikitexte"], champ_geo["nom"], val)
-    if champ_geo.get("lieu_depuis"):
+    if champ_geo.get("lieu_depuis") and not champ_geo.get("consigne"):   # le lieu est aussi un champ de la fiche
         st.session_state["wikitexte"] = remplacer_champ(st.session_state["wikitexte"],
                                                         champ_geo["lieu_depuis"], st.session_state["lieu"])
     st.session_state["message_geo"] = rq

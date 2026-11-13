@@ -1,8 +1,8 @@
 # Générateur de fiches pour le wiki XD
 
-Appli Streamlit : on choisit un type de fiche (pour l'instant **Projet**), on dépose le document
-qui décrit le projet (PDF ou Word), et l'IA rédige la fiche en wikitexte au format du modèle
-`{{Project}}` du wiki [wikixd.fabmob.io](https://wikixd.fabmob.io).
+Appli Streamlit : on choisit un type de fiche (**Projet** ou **Évènement**), on dépose un document
+(PDF ou Word) et/ou un lien vers une page web qui le décrit, et l'IA rédige la fiche en wikitexte au format du modèle
+`{{Project}}` ou `{{event}}` du wiki [wikixd.fabmob.io](https://wikixd.fabmob.io).
 
 L'appli **ne se connecte pas au wiki** : on relit la fiche, puis on la colle sur le wiki.
 
@@ -36,11 +36,15 @@ puis déposer les fichiers téléchargés dans le dossier `donnees_wiki/` du dé
 
 ## Modifier ou ajouter un modèle
 
-Tout est dans `modeles/projet.yaml` : la liste des champs dans l'ordre du modèle wiki, et pour chacun :
+Tout est dans `modeles/projet.yaml` et `modeles/evenement.yaml` : la liste des champs dans l'ordre du modèle wiki, et pour chacun :
 - `source: ia` + `consigne` : rédigé par l'IA à partir du document ;
 - `source: defaut` + `valeur` : valeur fixe ;
 - `source: geo` : coordonnées calculées à partir du champ `lieu_depuis` ;
-- `source: vide` : laissé vide.
+- `source: vide` : laissé vide ;
+- `liste_wiki` : nom le plus proche dans une liste du wiki (Vehicule, Acteur, Utilisateur),
+  éventuellement plusieurs listes essayées dans l'ordre (`[Utilisateur, Acteur]`) ;
+- `valeurs_autorisees` : seules ces valeurs sont gardées (ex. types d'évènement) ;
+- `format: date_iso` : date convertie au format `2026-06-04T09:00:00.000Z`.
 
 Pour un nouveau type (Évènement, Acteur, Véhicule) : copier `projet.yaml`, adapter `nom_affiche`,
 `modele_wiki` et les champs. Il apparaît automatiquement dans le menu.

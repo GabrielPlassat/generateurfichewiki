@@ -7,6 +7,7 @@
 # =====================================================================
 
 nom_affiche: "Projet"
+ordre: 1                         # position dans le menu
 modele_wiki: "Project"            # nom écrit après {{ dans la fiche
 consigne_generale: >
   Tu rédiges une fiche Projet pour le wiki de l'eXtrême Défi Mobilité (ADEME) /
