@@ -28,6 +28,7 @@ ENTETES = {
 # (1re colonne = nom de la page). Lisibles même quand l'API est bloquée.
 PAGES_TABLEAU = {
     "Vehicule": "Tous_les_vélis",
+    "Acteur": "Tous_les_Acteurs",
 }
 
 

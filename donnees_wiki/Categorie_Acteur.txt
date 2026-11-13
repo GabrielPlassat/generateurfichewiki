@@ -1,2 +1,268 @@
-# Pages de Catégorie:Acteur sur https://wikixd.fabmob.io
-# mis à jour : jamais — lancer rafraichir_listes_wiki.ipynb
+# Pages d'acteurs du wiki XD (copie de secours)
+# source : https://wikixd.fabmob.io/wiki/Tous_les_Acteurs
+# mis à jour : 2026-11-13
+# 264 noms, un par ligne — l'appli lit la page en direct quand elle le peut
+ACTIA
+ADEME
+AGC FeelInGlass
+AGC Reeflect
+AKKODIS
+ALLIANCE SENS & ECONOMIE
+ANCT
+AREP
+ARaymond
+ATUL
+AVAIRX
+AVELI
+Acticycle Start-up
+Agence de l'Innovation des Transports AIT
+Agil'ess
+Albret Communauté
+Ambre Tech
+Arnaud Habsieger
+Atelier Prosper
+Atelier Vélo Pau
+Autonomy
+Avant-pays savoyard
+Avatar Mobilité
+BA Createx
+BAKO MOTORS
+BM Fixations
+Batconnect
+Battery Concept
+Bird
+Blackstrix
+Bliiida Fablab
+Blue Bike Innovation
+Bluemooov
+Bontaz
+Botch Cargo Bikes
+Brest Métropole
+Brissy-Hamégicourt
+Bugg Motion
+CA Maubeuge Val de Sambre
+CAR&D
+CASHVOLT
+CC Grand Pic Saint Loup
+CC des Pays de l’Aigle
+CEA
+CESAMES
+CIRCLE SAS
+COBRANE DESIGN
+COGITECH
+CYCLAUTO ACME
+Caminade
+Campus Cyber
+Centre Hospitalier de Niort
+Chamrousse
+Cixi
+Clean Motion
+Climact
+Commodus Tech
+Communauté Des Communes Rurales de l’Entre-Deux-Mers
+Communauté d'Agglomération du Grand Avignon
+Communauté d'agglomération du Cotentin
+Communauté de Communes du Briançonnais
+Communauté de Communes du Gevaudan
+Communauté de commune Haute Tarentaise
+Communauté de commune de La Grandvallière
+Communauté de communes Vézère Monédières Millesources
+Communauté de communes de Hanau La Petite Pierre
+Communauté de communes de Puisaye-Forterre
+Communauté de communes des 7 Vallées
+Communauté de communes des Monts du Lyonnais
+Communauté de communes des Monts du Pilat
+Communauté de communes du Clunisois
+Communauté de communes du Kreiz-Breizh CCKB
+Communauté de communes du Pays de Landivisiau
+Communauté de communes la Domitienne
+Commune Aubin-Saint-Vaast
+Commune Le Teil
+Commune Les Mureaux
+Commune Saint Paul TCO
+Commune d'Osny
+Commune de Bourg Saint Maurice
+Commune de Cheverny
+Commune de Lalouvesc
+Commune de Lamarche
+Commune de Macé
+Commune de Tignes
+Commune de Villeneuve de Berg
+Commune la Chapelle-Thouarault
+Concarneau Cornouaille Agglomération
+Continental
+Coopérative Shifti SCES
+Croix-Rouge française
+Côte du Midi
+DMTech
+Dassault Systèmes 3DS
+Daymak Avvenire
+DeberghesMobiliTech
+Deegle
+Direction Générale des Entreprises DGE
+Dynamic drives giessen
+E-ROE
+ENSCI Les Ateliers
+ETS KBS
+EXSPORT AUTO
+Ecocentre (Fablab dans l'Allier - 03)
+Ediwheel Ltd
+Effigear
+Eli Electric Vehicles
+Entreprise Aetius
+Entreprise Karbikes
+Eon Motors
+Eoxs
+Estaca
+FAVI
+FORVIA
+FOXONROCK
+Fab Unit
+FabMob
+Fabrique de la Logistique
+Fabrique des Communs Pédagogiques
+Fairmat
+Fer de France
+Fondation Owntech
+Font-Romeu
+François Rommé
+Fédération Châtaigneraie Limousine
+GREAT
+Galian Cycles
+Gensol EV
+Gouach
+Grand Chambéry Agglomération
+Grandvaux (Jura)
+Greenfib
+Groupe SAB
+Groupe VYV
+HPR solutions
+Hawkar
+Human Mob
+Hutchinson
+ID4CAR
+IMREDD
+INSA Club
+INSA Lyon
+INSA Toulouse
+IUT de l'Aisne
+Idrotosolution
+Ile de Nantes
+In'VD
+Infinite Mobility
+IsdaT
+Jetbike
+Kameloo
+Kate
+Keep motion
+Kickmaker
+Knauf Industries
+Konk Ar Lab
+Kyburz
+LA FABRIQUE DES ATELIERS PARTAGÉS
+LEVI Light EV Innovation Cluster
+LLE Solutions
+LUZ'IN
+La Bernerie en Retz
+La Bricothèque Fablab
+La Fabrique Caylus
+La Fabrique du Loch
+La Rochelle
+LabSud
+Laboratoire Organique de Lustar
+Le Bocal Fablab
+Le Mans Métropole
+Le Mans Tech
+Les Alluets-le-Roi
+Les Chemins de la transition
+Les Contamines Montjoie
+Les Monts qui pétillent
+Link2Concept
+Luvly
+MAIF
+MIDIPILE
+MILC Industry
+MIX - Laboratoire des Mobilités Innovantes
+MRT Michelin Recherche & Technique
+MS Systèmes
+Maillon Mobility
+Makers&Co
+Mesnils sur iton
+Meta
+Metacar Mobility Systems
+Metacar Transport Systems
+Microville 112
+Mob ion
+Mobidream
+Montagnac
+Mouans Sartoux
+Movin'On Lab
+Mubea U Mobility
+Métropole Aix Marseille
+Métropole de Montpellier
+NTN SNR
+Nantes Métropole
+Nextmove
+Noam
+PNR des Grands Causses
+PSL3D
+Pedalocab Acteur
+Pelican
+Pink Mobility
+Pont-Saint-Pierre
+Pragma Industries
+Precious Plastic
+Pyrénées Cycling Group
+QBX
+QUADRIBOT
+Refactory Renault
+RoseLab
+Région Sud PACA
+Région du Soissonnais
+Réseau Français des FabLabs
+Réseau des Carnot
+SAMOA
+SARL St-CYR AUTOCYCLETTES
+SIMOP
+SNAP
+SNCF Tech4Mobility
+SOBEN
+Saint Bauzille de Montmel
+Saint Genix les Villages
+Sainte-Marie
+Sanka
+Savigny sur Orge
+Savoy International
+Scoobic
+Seinergy Lab
+Shematic
+Société Karbikes
+Société des Ingénieurs de l'Automobile
+Solar Cloth
+Squaregolab
+Start2Prod
+Stilic Force
+Swincar
+Séverine Rommé
+TETMET
+Technistub
+Teltonika
+The Tiny Car
+Ti MOBZH
+Toulouse Métropole
+Transalley
+Transporterie
+Tressin
+UTAC
+Ultima Mobility
+Umotion
+VALEO
+VITESCO
+Valenciennes Métropole
+Ville de Corenc
+Ville de Loos-en-Gohelle
+Virvolt
+Vélo solaire pour tous
+WELLO
+Würth Elektronik France
+Zeway
