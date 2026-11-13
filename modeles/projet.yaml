@@ -52,8 +52,12 @@ champs:
       la liste des véhicules utilisés ou testés, la liste des partenaires / acteurs,
       les suites envisagées et l'étape d'avancement, les besoins du projet, le lieu.
 
+      Les cibles et publics visés par le projet (ex. professionnels, collectivités,
+      acteurs de la mobilité inclusive, associations d'aide aux personnes précaires,
+      habitants) DOIVENT figurer dans la description, dans une section « Publics cibles ».
+
       Sections possibles (seulement si le document les renseigne) : Contexte, Objectifs,
-      Déroulement / organisation, Publics et usages, Résultats et chiffres clés,
+      Publics cibles, Déroulement / organisation, Usages, Résultats et chiffres clés,
       Enseignements.
     entoure_par: ["<div><div>\n", "\n</div></div>"]
 
@@ -132,7 +136,12 @@ champs:
 
   - nom: keyuser
     source: ia
-    consigne: "Utilisateurs clés du projet (structures ou publics cibles), seulement s'ils sont cités."
+    liste_wiki: "Utilisateur"
+    correspondance: stricte     # une personne : pas de rapprochement approximatif
+    consigne: >
+      UNIQUEMENT des personnes (prénom et nom) citées dans le document ET présentes dans la
+      liste « Utilisateur » du wiki, nom copié à l'identique. Jamais de structure ni de public
+      cible. Si aucune personne ne remplit ces deux conditions, laisse vide ("").
 
   - nom: Develop
     source: vide
